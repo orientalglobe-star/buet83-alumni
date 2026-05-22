@@ -390,10 +390,10 @@
       </button>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-heading">Online Now</div>
-      <div class="online-item"><div class="online-dot"></div>Rezaul K.</div>
-      <div class="online-item"><div class="online-dot"></div>Shahed A.</div>
-      <div class="online-item"><div class="online-dot"></div>Mahmud H.</div>
+      <div class="sidebar-heading">Recently Active</div>
+      <div id="online-list">
+        <div style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)">Loading...</div>
+      </div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-heading">Quick Stats</div>
@@ -576,6 +576,7 @@
     window._onSnapshot(q, (snapshot) => {
       threads = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       renderList();
+      updateRecentlyActive();
       if (currentThread) {
         // refresh current thread if open
         const updated = threads.find(t => t.id === currentThread.id);
@@ -629,6 +630,7 @@
       },
     ];
     renderList();
+    updateRecentlyActive();
   }
 
   // ═══════════════════════════════════════════════════════
@@ -780,6 +782,7 @@
       // demo mode — update locally
       currentThread.replies.push(reply);
       renderReplies(); updateStats();
+      updateRecentlyActive();
       showToast('Reply posted (demo mode)');
     }
 
@@ -816,6 +819,7 @@
       // demo mode
       threads.unshift({ id:Date.now().toString(), ...newThread });
       renderList(); closeModal();
+      updateRecentlyActive();
       showToast('Thread posted (demo mode) 🎉');
     }
 
