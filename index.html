@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BUET83 Alumni – Discussion Forum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <!-- ════════════════════════════════════════════════════
+       🔥 FIREBASE CONFIGURATION
+       ════════════════════════════════════════════════════
+       STEP 1: Go to https://console.firebase.google.com
+       STEP 2: Create a project → "buet83-forum"
+       STEP 3: Add a Web App → copy the config below
+       STEP 4: Go to Firestore Database → Create database (test mode)
+       STEP 5: Replace the values below with YOUR config
+       ════════════════════════════════════════════════════ -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, doc,
+      addDoc, updateDoc, onSnapshot,
+      query, orderBy, serverTimestamp, arrayUnion
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ── YOUR FIREBASE CONFIG GOES HERE ──
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCS4A936Mx3IA4GM2-S3ghgZwKEbeMFyKA8",
+      authDomain:        "buet83-forum.firebaseapp.com",
+      projectId:         "buet83-forum",
+      storageBucket:     "buet83-forum.firebasestorage.app",
+      messagingSenderId: "562853296220",
+      appId:             "1:562853296220:web:908435d4ce84c27b93ce99"
+    };
+
+    // ── Init Firebase ──
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    // ── Expose to global scope so non-module functions can use ──
+    window._db            = db;
+    window._collection    = collection;
+    window._doc           = doc;
+    window._addDoc        = addDoc;
+    window._updateDoc     = updateDoc;
+    window._onSnapshot    = onSnapshot;
+    window._query         = query;
+    window._orderBy       = orderBy;
+    window._serverTimestamp = serverTimestamp;
+    window._arrayUnion    = arrayUnion;
+
+    // ── Start listening once Firebase is ready ──
+    // Retry until initForum is available (handles timing between module and regular scripts)
+    function tryInit(attempts) {
+      if (typeof window.initForum === 'function') {
+        window.initForum();
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 100);
+      } else {
+        // fallback - hide loader and load demo data
+        const s = document.getElementById('loading-screen');
+        if (s) { s.classList.add('hidden'); setTimeout(()=>s.remove(),500); }
+        if (typeof window.loadDemoData === 'function') window.loadDemoData();
+      }
+    }
+    if (document.readyState === 'complete') {
+      tryInit(30);
+    } else {
+      window.addEventListener('load', () => tryInit(30));
+    }
+  </script>
+
+  <style>
+    :root {
+      --ink:    #0c1219;
+      --gold:   #c8a84b;
+      --gold2:  #e5cc7a;
+      --rust:   #b85c38;
+      --sage:   #4a7c6f;
+      --blue:   #4a6fa5;
+      --cream:  #f2ede4;
+      --muted:  #8a8070;
+      --card:   #111c2a;
+      --card2:  #0f1822;
+      --line:   rgba(200,168,75,0.18);
+      --hover:  rgba(200,168,75,0.06);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── LOADING SCREEN ── */
+    #loading-screen {
+      position: fixed; inset: 0;
+      background: var(--ink);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 999;
+      gap: 20px;
+      transition: opacity .4s;
+    }
+    #loading-screen.hidden { opacity: 0; pointer-events: none; }
+    #loading-screen.timeout { opacity: 0; pointer-events: none; }
+    .loader-ring {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 2px solid var(--line);
+      border-top-color: var(--gold);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text {
+      font-family: 'DM Mono', monospace;
+      font-size: .72rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      color: var(--cream);
+      z-index: 500;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform .3s, opacity .3s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(76,175,125,.4); color: #7ecab8; }
+    .toast.error   { border-color: rgba(184,92,56,.4);  color: #e8956a; }
+
+    /* ── CONFIG BANNER ── */
+    .config-banner {
+      background: rgba(184,92,56,.15);
+      border: 1px solid rgba(184,92,56,.35);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      font-size: .85rem;
+      color: #e8956a;
+      line-height: 1.7;
+      display: none;
+    }
+    .config-banner.visible { display: block; }
+    .config-banner strong { color: var(--cream); }
+    .config-banner a { color: var(--gold); }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(12,18,25,0.98);
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      max-width: 1140px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; gap: 24px;
+    }
+    .logo-group { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-badge {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      background: radial-gradient(circle, rgba(200,168,75,.15), transparent);
+      flex-shrink: 0;
+    }
+    .logo-text { line-height: 1.1; }
+    .logo-name { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+    .logo-sub  { font-family: 'DM Mono', monospace; font-size: .58rem; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+    .header-nav { display: flex; gap: 4px; }
+    .header-nav a {
+      padding: 7px 14px; font-family: 'DM Mono', monospace; font-size: .68rem;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+      text-decoration: none; border-radius: 4px; transition: color .2s, background .2s;
+    }
+    .header-nav a:hover  { color: var(--gold); background: var(--hover); }
+    .header-nav a.active { color: var(--gold2); background: rgba(200,168,75,.1); }
+    .new-thread-btn {
+      display: flex; align-items: center; gap: 7px; padding: 9px 18px;
+      background: linear-gradient(135deg, rgba(200,168,75,.2), rgba(200,168,75,.1));
+      border: 1px solid rgba(200,168,75,.4); border-radius: 6px;
+      color: var(--gold); font-family: 'DM Mono', monospace; font-size: .7rem;
+      letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+      transition: all .2s; white-space: nowrap;
+    }
+    .new-thread-btn:hover {
+      background: linear-gradient(135deg, rgba(200,168,75,.35), rgba(200,168,75,.2));
+      border-color: rgba(200,168,75,.7); color: var(--gold2); transform: translateY(-1px);
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .page { max-width: 1140px; margin: 0 auto; padding: 36px 32px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 36px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar-section { margin-bottom: 32px; }
+    .sidebar-heading { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+    .cat-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 6px; border: none; background: transparent; color: rgba(242,237,228,.65); font-family: 'DM Sans', sans-serif; font-size: .88rem; cursor: pointer; transition: background .2s, color .2s; text-align: left; margin-bottom: 3px; }
+    .cat-btn:hover  { background: var(--hover); color: var(--cream); }
+    .cat-btn.active { background: rgba(200,168,75,.12); color: var(--gold2); border: 1px solid rgba(200,168,75,.2); }
+    .cat-icon  { font-size: 1rem; flex-shrink: 0; }
+    .cat-label { flex: 1; }
+    .cat-count { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); background: rgba(255,255,255,.05); border-radius: 99px; padding: 2px 7px; }
+    .cat-btn.active .cat-count { color: var(--gold); background: rgba(200,168,75,.15); }
+    .online-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: .82rem; color: rgba(242,237,228,.6); }
+    .online-dot  { width: 7px; height: 7px; border-radius: 50%; background: #4caf7d; box-shadow: 0 0 6px rgba(76,175,125,.5); flex-shrink: 0; }
+
+    /* ── MAIN FORUM ── */
+    .main { min-width: 0; }
+    .forum-hero { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 28px 32px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden; }
+    .forum-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 50% 100% at 100% 50%, rgba(200,168,75,.06), transparent); pointer-events: none; }
+    .forum-hero-text h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--cream); margin-bottom: 4px; }
+    .forum-hero-text p  { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .forum-stats { display: flex; gap: 28px; flex-shrink: 0; }
+    .fstat { text-align: center; }
+    .fstat-num   { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 700; color: var(--gold); display: block; line-height: 1; }
+    .fstat-label { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .toolbar-label { font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; flex: 1; }
+    .sort-btn { padding: 6px 14px; border-radius: 4px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .08em; cursor: pointer; transition: all .2s; }
+    .sort-btn:hover, .sort-btn.active { border-color: rgba(200,168,75,.4); color: var(--gold); background: rgba(200,168,75,.07); }
+    .search-mini { display: flex; }
+    .search-mini input { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-right: none; border-radius: 4px 0 0 4px; padding: 7px 12px; color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: .82rem; outline: none; width: 180px; }
+    .search-mini input::placeholder { color: var(--muted); }
+    .search-mini input:focus { border-color: rgba(200,168,75,.35); }
+    .search-mini button { background: rgba(200,168,75,.1); border: 1px solid rgba(200,168,75,.25); border-radius: 0 4px 4px 0; color: var(--gold); padding: 7px 10px; cursor: pointer; font-size: .85rem; }
+
+    /* THREAD CARDS */
+    .thread-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin-bottom: 12px; cursor: pointer; transition: transform .2s, border-color .2s, box-shadow .2s; position: relative; overflow: hidden; }
+    .thread-card:hover { transform: translateX(4px); border-color: rgba(200,168,75,.35); box-shadow: 0 4px 24px rgba(0,0,0,.3); }
+    .thread-card.pinned { border-color: rgba(200,168,75,.3); background: linear-gradient(135deg, rgba(200,168,75,.06), var(--card)); }
+    .thread-card.pinned::before { content: '📌'; position: absolute; top: 12px; right: 14px; font-size: .8rem; opacity: .6; }
+    .thread-top  { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+    .thread-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+    .thread-meta { flex: 1; min-width: 0; }
+    .thread-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--cream); line-height: 1.25; margin-bottom: 5px; transition: color .2s; }
+    .thread-card:hover .thread-title { color: var(--gold2); }
+    .thread-info   { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .thread-author { font-size: .78rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .thread-time   { font-size: .72rem; color: rgba(138,128,112,.6); font-family: 'DM Mono', monospace; }
+    .tag { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; }
+    .tag-reunion  { background: rgba(200,168,75,.12); color: var(--gold2);  border: 1px solid rgba(200,168,75,.25); }
+    .tag-general  { background: rgba(74,124,111,.12); color: #7ecab8;       border: 1px solid rgba(74,124,111,.25); }
+    .tag-memory   { background: rgba(184,92,56,.12);  color: #e8956a;       border: 1px solid rgba(184,92,56,.25); }
+    .tag-achieve  { background: rgba(74,111,165,.12); color: #9eb3f5;       border: 1px solid rgba(74,111,165,.25); }
+    .tag-announce { background: rgba(150,80,180,.12); color: #d4a0f5;       border: 1px solid rgba(150,80,180,.25); }
+    .thread-excerpt { font-size: .85rem; color: rgba(242,237,228,.5); line-height: 1.65; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .thread-footer { display: flex; align-items: center; gap: 16px; }
+    .thread-stat   { display: flex; align-items: center; gap: 5px; font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted); }
+    .thread-last   { margin-left: auto; font-family: 'DM Mono', monospace; font-size: .65rem; color: rgba(138,128,112,.5); }
+
+    /* MODAL */
+    .overlay { position: fixed; inset: 0; background: rgba(8,14,22,.85); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: var(--card2); border: 1px solid var(--line); border-radius: 14px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; transform: translateY(20px); transition: transform .25s; box-shadow: 0 32px 80px rgba(0,0,0,.6); }
+    .overlay.open .modal { transform: translateY(0); }
+    .modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title  { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); }
+    .modal-close  { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .modal-close:hover { border-color: rgba(200,168,75,.4); color: var(--gold); }
+    .modal-body { padding: 24px 28px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .form-input, .form-textarea, .form-select { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: .9rem; outline: none; transition: border-color .2s; }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: rgba(200,168,75,.45); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+    .form-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+    .form-select   { appearance: none; cursor: pointer; }
+    .form-select option { background: #1a2535; }
+    .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .submit-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, rgba(200,168,75,.25), rgba(200,168,75,.12)); border: 1px solid rgba(200,168,75,.45); border-radius: 8px; color: var(--gold2); font-family: 'DM Mono', monospace; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; transition: all .2s; margin-top: 8px; }
+    .submit-btn:hover { background: linear-gradient(135deg, rgba(200,168,75,.4), rgba(200,168,75,.22)); border-color: rgba(200,168,75,.7); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* THREAD DETAIL */
+    #thread-detail { display: none; }
+    .back-btn { display: inline-flex; align-items: center; gap: 7px; font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: transparent; border: none; cursor: pointer; padding: 0; margin-bottom: 24px; transition: color .2s; }
+    .back-btn:hover { color: var(--gold); }
+    .detail-header { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+    .detail-title  { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.5rem,3vw,2rem); font-weight: 600; color: var(--cream); line-height: 1.2; margin-bottom: 12px; }
+    .detail-meta   { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .detail-body   { font-size: .95rem; line-height: 1.85; color: rgba(242,237,228,.8); border-top: 1px solid var(--line); padding-top: 20px; }
+
+    /* REPLIES */
+    .replies-label { font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .replies-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+    .reply-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin-bottom: 12px; animation: fadeIn .35s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    .reply-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .reply-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: .9rem; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+    .reply-name { font-size: .9rem; font-weight: 500; color: var(--cream); }
+    .reply-time { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); }
+    .reply-body { font-size: .9rem; line-height: 1.75; color: rgba(242,237,228,.75); }
+
+    /* QUOTE */
+    .quote-block { background: rgba(200,168,75,.06); border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 10px; }
+    .quote-author { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--gold); letter-spacing: .1em; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .quote-author::before { content: '🗨️'; font-size: .75rem; }
+    .quote-text   { font-size: .82rem; color: rgba(242,237,228,.5); line-height: 1.55; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .reply-to-btn { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; padding: 5px 12px; border-radius: 4px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-family: 'DM Mono', monospace; font-size: .65rem; letter-spacing: .08em; cursor: pointer; transition: all .2s; }
+    .reply-to-btn:hover { border-color: rgba(200,168,75,.4); color: var(--gold); background: rgba(200,168,75,.07); }
+
+    /* REPLY FORM */
+    .reply-form { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin-top: 20px; }
+    .reply-form-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--gold2); margin-bottom: 16px; }
+    .quote-preview { background: rgba(200,168,75,.06); border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 14px; display: none; position: relative; }
+    .quote-preview.visible { display: block; }
+    .quote-preview-author { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--gold); margin-bottom: 4px; }
+    .quote-preview-text   { font-size: .82rem; color: rgba(242,237,228,.5); font-style: italic; line-height: 1.5; }
+    .quote-preview-clear  { position: absolute; top: 8px; right: 10px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: .85rem; transition: color .2s; }
+    .quote-preview-clear:hover { color: var(--rust); }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
+    .empty-state div { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state p   { font-size: .9rem; line-height: 1.6; }
+
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; padding: 20px 16px 48px; }
+      .header-nav { display: none; }
+      .forum-hero { flex-direction: column; }
+      .forum-stats { justify-content: center; }
+      .name-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loader-ring"></div>
+  <div class="loader-text" id="loader-text">Connecting to Forum...</div>
+</div>
+<script>
+  // Hard timeout — if still loading after 8s, show demo mode
+  setTimeout(function() {
+    var s = document.getElementById('loading-screen');
+    if (s && !s.classList.contains('hidden')) {
+      document.getElementById('loader-text').textContent = 'Loading demo mode...';
+      setTimeout(function() {
+        if (s && !s.classList.contains('hidden')) {
+          s.classList.add('hidden');
+          setTimeout(function(){ if(s) s.remove(); }, 500);
+          if (typeof window.loadDemoData === 'function') window.loadDemoData();
+        }
+      }, 1000);
+    }
+  }, 8000);
+</script>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="https://buet83.wordpress.com" class="logo-group">
+      <div class="logo-badge">🎓</div>
+      <div class="logo-text">
+        <div class="logo-name">BUET83</div>
+        <div class="logo-sub">Alumni Network</div>
+      </div>
+    </a>
+    <nav class="header-nav">
+      <a href="https://buet83.wordpress.com">Home</a>
+      <a href="#">News</a>
+      <a href="#" class="active">Forum</a>
+      <a href="#">Events</a>
+      <a href="#">Gallery</a>
+    </nav>
+    <button class="new-thread-btn" onclick="openNewThread()">✏️ New Thread</button>
+  </div>
+</header>
+
+<!-- PAGE -->
+<div class="page">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Categories</div>
+      <button class="cat-btn active" onclick="filterCat('all',this)">
+        <span class="cat-icon">🗂️</span><span class="cat-label">All Threads</span>
+        <span class="cat-count" id="count-all">0</span>
+      </button>
+      <button class="cat-btn" onclick="filterCat('general',this)">
+        <span class="cat-icon">💬</span><span class="cat-label">General Chat</span>
+        <span class="cat-count" id="count-general">0</span>
+      </button>
+      <button class="cat-btn" onclick="filterCat('reunion',this)">
+        <span class="cat-icon">🎉</span><span class="cat-label">Reunion</span>
+        <span class="cat-count" id="count-reunion">0</span>
+      </button>
+      <button class="cat-btn" onclick="filterCat('memory',this)">
+        <span class="cat-icon">📸</span><span class="cat-label">Memories</span>
+        <span class="cat-count" id="count-memory">0</span>
+      </button>
+      <button class="cat-btn" onclick="filterCat('achieve',this)">
+        <span class="cat-icon">🏆</span><span class="cat-label">Achievements</span>
+        <span class="cat-count" id="count-achieve">0</span>
+      </button>
+      <button class="cat-btn" onclick="filterCat('announce',this)">
+        <span class="cat-icon">📣</span><span class="cat-label">Announcements</span>
+        <span class="cat-count" id="count-announce">0</span>
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Recently Active</div>
+      <div id="online-list">
+        <div style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)">Loading...</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Quick Stats</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);line-height:2">
+        <div>Threads: <span style="color:var(--gold)" id="stat-threads">0</span></div>
+        <div>Replies: <span style="color:var(--gold)" id="stat-replies">0</span></div>
+        <div>Members: <span style="color:var(--gold)">347</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- Thread List View -->
+    <div id="thread-list-view">
+      <div class="config-banner" id="config-banner">
+        ⚠️ <strong>Firebase not configured yet.</strong> Running in demo mode — posts won't be saved permanently.
+        <br>Follow the <a href="#setup-guide" onclick="document.getElementById('setup-guide').scrollIntoView({behavior:'smooth'})">setup guide below</a> to connect your Firebase database.
+      </div>
+      <div class="forum-hero">
+        <div class="forum-hero-text">
+          <h2>Alumni Discussion Forum</h2>
+          <p>Share stories, plan reunions, celebrate achievements.<br>This is your space — keep the BUET83 spirit alive.</p>
+        </div>
+        <div class="forum-stats">
+          <div class="fstat"><span class="fstat-num" id="hero-threads">0</span><span class="fstat-label">Threads</span></div>
+          <div class="fstat"><span class="fstat-num" id="hero-replies">0</span><span class="fstat-label">Replies</span></div>
+          <div class="fstat"><span class="fstat-num">347</span><span class="fstat-label">Members</span></div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-label" id="toolbar-label">All Threads</div>
+        <button class="sort-btn active" onclick="sortThreads('latest',this)">Latest</button>
+        <button class="sort-btn" onclick="sortThreads('popular',this)">Popular</button>
+        <div class="search-mini">
+          <input type="text" placeholder="Search threads..." id="search-input" oninput="renderList()"/>
+          <button>🔍</button>
+        </div>
+      </div>
+      <div id="thread-list"></div>
+    </div>
+
+    <!-- Thread Detail View -->
+    <div id="thread-detail">
+      <button class="back-btn" onclick="showList()">← Back to Forum</button>
+      <div id="detail-content"></div>
+      <div id="replies-section"></div>
+      <div class="reply-form">
+        <div class="reply-form-title" id="reply-form-title">✍️ Add Your Reply</div>
+        <div class="name-row" style="margin-bottom:14px">
+          <div>
+            <label class="form-label">Your Name</label>
+            <input class="form-input" id="reply-name" placeholder="e.g. Rezaul Karim"/>
+          </div>
+          <div>
+            <label class="form-label">Dept & Year</label>
+            <input class="form-input" id="reply-dept" placeholder="e.g. Civil '83"/>
+          </div>
+        </div>
+        <div class="quote-preview" id="quote-preview">
+          <div class="quote-preview-author" id="quote-preview-author"></div>
+          <div class="quote-preview-text"   id="quote-preview-text"></div>
+          <button class="quote-preview-clear" onclick="clearQuote()">✕</button>
+        </div>
+        <div style="margin-bottom:14px">
+          <label class="form-label">Your Reply</label>
+          <textarea class="form-textarea" id="reply-body" placeholder="Share your thoughts..."></textarea>
+        </div>
+        <button class="submit-btn" id="reply-submit-btn" onclick="submitReply()">Post Reply →</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- NEW THREAD MODAL -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">Start a New Thread</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="name-row">
+        <div class="form-group">
+          <label class="form-label">Your Name *</label>
+          <input class="form-input" id="new-name" placeholder="e.g. Rezaul Karim"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dept & Year</label>
+          <input class="form-input" id="new-dept" placeholder="e.g. Civil '83"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select class="form-select" id="new-cat">
+          <option value="general">💬 General Chat</option>
+          <option value="reunion">🎉 Reunion</option>
+          <option value="memory">📸 Memories</option>
+          <option value="achieve">🏆 Achievements</option>
+          <option value="announce">📣 Announcements</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Thread Title *</label>
+        <input class="form-input" id="new-title" placeholder="What would you like to discuss?"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Message *</label>
+        <textarea class="form-textarea" id="new-body" placeholder="Share your thoughts with the batch..."></textarea>
+      </div>
+      <button class="submit-btn" id="thread-submit-btn" onclick="submitThread()">Post Thread →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════
+  //  HELPERS
+  // ═══════════════════════════════════════════════════════
+  const COLORS = [
+    'linear-gradient(135deg,#c8a84b,#8a6820)',
+    'linear-gradient(135deg,#4a7c6f,#2a4c44)',
+    'linear-gradient(135deg,#b85c38,#7a3c22)',
+    'linear-gradient(135deg,#4a6fa5,#2a4070)',
+    'linear-gradient(135deg,#8a5cb8,#5a3080)',
+    'linear-gradient(135deg,#c85c8a,#883060)',
+  ];
+  function colorFor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffff; return COLORS[h%COLORS.length]; }
+  function initials(n) { return n.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'?'; }
+  function timeAgo(ts) {
+    const d=Date.now()-ts, m=60000, h=3600000, dy=86400000;
+    if(d<m)  return 'just now';
+    if(d<h)  return Math.floor(d/m)+'m ago';
+    if(d<dy) return Math.floor(d/h)+'h ago';
+    return Math.floor(d/dy)+'d ago';
+  }
+  const TAG_MAP   = {general:'tag-general',reunion:'tag-reunion',memory:'tag-memory',achieve:'tag-achieve',announce:'tag-announce'};
+  const TAG_LABEL = {general:'General',reunion:'Reunion',memory:'Memory',achieve:'Achievement',announce:'Announcement'};
+
+  function showToast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type==='success'?'✅ ':'❌ ') + msg;
+    t.className = 'toast show ' + type;
+    setTimeout(()=>{ t.className='toast'; }, 3000);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════════════════
+  let threads       = [];   // loaded from Firestore
+  let currentCat    = 'all';
+  let currentThread = null;
+  let sortMode      = 'latest';
+  let activeQuote   = null;
+  let firebaseReady = false;
+
+  // ═══════════════════════════════════════════════════════
+  //  FIREBASE INIT — called once Firebase module loads
+  // ═══════════════════════════════════════════════════════
+  window.initForum = function() {
+    const db = window._db;
+
+    // detect unconfigured placeholder
+    if (!db || document.querySelector('script[type=module]').textContent.includes('YOUR_API_KEY')) {
+      document.getElementById('config-banner').classList.add('visible');
+      hideLoader();
+      // fall back to demo data
+      loadDemoData();
+      return;
+    }
+
+    firebaseReady = true;
+
+    // Real-time listener on threads collection
+    const q = window._query(
+      window._collection(db, 'threads'),
+      window._orderBy('ts', 'desc')
+    );
+
+    window._onSnapshot(q, (snapshot) => {
+      threads = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderList();
+      updateRecentlyActive();
+      if (currentThread) {
+        // refresh current thread if open
+        const updated = threads.find(t => t.id === currentThread.id);
+        if (updated) { currentThread = updated; renderReplies(); }
+      }
+      hideLoader();
+    }, (err) => {
+      console.error(err);
+      showToast('Could not connect to database', 'error');
+      document.getElementById('config-banner').classList.add('visible');
+      loadDemoData();
+      hideLoader();
+    });
+  };
+
+  function hideLoader() {
+    const s = document.getElementById('loading-screen');
+    s.classList.add('hidden');
+    setTimeout(()=>s.remove(), 500);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  DEMO DATA (fallback when Firebase not configured)
+  // ═══════════════════════════════════════════════════════
+  function loadDemoData() {
+    threads = [
+      { id:'1', pinned:true, cat:'announce', name:'Admin', dept:'BUET83',
+        title:'Welcome to the BUET83 Alumni Forum! 🎓',
+        body:'Dear batchmates, welcome to our new discussion forum. This is your space to connect, reminisce, share achievements, and plan events. Start a thread on any topic!',
+        ts: Date.now()-86400000*2,
+        replies:[
+          { name:'Rezaul Karim', dept:"Civil '83", body:'Wonderful initiative! This is exactly what we needed.', ts:Date.now()-3600000*5 },
+          { name:'Farida Begum', dept:"EEE '83",   body:'Finally a proper space for us. Great work admin!', ts:Date.now()-3600000*3 },
+        ]
+      },
+      { id:'2', pinned:false, cat:'reunion', name:'Shahed Alam', dept:"ME '83",
+        title:'Reunion 2026 — Toronto Dinner: Who is Coming?',
+        body:'We are planning an alumni dinner on May 20 at the Sheraton Centre, Toronto. Please confirm your attendance here so we can finalize numbers.',
+        ts: Date.now()-86400000,
+        replies:[
+          { name:'Mahmud Hossain', dept:"CSE '83", body:'I will be there! Coming from Montreal with my wife.', ts:Date.now()-7200000 },
+        ]
+      },
+      { id:'3', pinned:false, cat:'memory', name:'Nargis Sultana', dept:"Arch '83",
+        title:"Does anyone remember Prof. Siddiqui's legendary fluid mechanics class?",
+        body:'I found my old fluid mechanics notebook from 1981. Prof. Siddiqui\'s teaching was unforgettable. Does anyone have old classroom photos?',
+        ts: Date.now()-86400000*3,
+        replies:[
+          { name:'Kamal Ahmed', dept:"ME '83", body:'How can anyone forget! He used to say "Flow follows the path of least resistance — just like life!"', ts:Date.now()-86400000 },
+        ]
+      },
+    ];
+    renderList();
+    updateRecentlyActive();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  RENDER THREAD LIST
+  // ═══════════════════════════════════════════════════════
+  function renderList() {
+    let filtered = threads.filter(t => currentCat==='all' || t.cat===currentCat);
+    const q = (document.getElementById('search-input')?.value||'').toLowerCase();
+    if (q) filtered = filtered.filter(t => t.title.toLowerCase().includes(q) || t.body.toLowerCase().includes(q));
+    if (sortMode==='latest')  filtered = [...filtered].sort((a,b)=>b.ts-a.ts);
+    if (sortMode==='popular') filtered = [...filtered].sort((a,b)=>b.replies.length-a.replies.length);
+    filtered = [...filtered.filter(t=>t.pinned), ...filtered.filter(t=>!t.pinned)];
+
+    const el = document.getElementById('thread-list');
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty-state"><div>💬</div><p>No threads yet.<br>Be the first to start a conversation!</p></div>`;
+    } else {
+      el.innerHTML = filtered.map(t=>`
+        <div class="thread-card${t.pinned?' pinned':''}" onclick="openThread('${t.id}')">
+          <div class="thread-top">
+            <div class="thread-avatar" style="background:${colorFor(t.name)}">${initials(t.name)}</div>
+            <div class="thread-meta">
+              <div class="thread-title">${t.title}</div>
+              <div class="thread-info">
+                <span class="tag ${TAG_MAP[t.cat]}">${TAG_LABEL[t.cat]}</span>
+                <span class="thread-author">${t.name}${t.dept?' · '+t.dept:''}</span>
+                <span class="thread-time">${timeAgo(t.ts)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="thread-excerpt">${t.body}</div>
+          <div class="thread-footer">
+            <div class="thread-stat"><span>💬</span> ${t.replies.length} repl${t.replies.length===1?'y':'ies'}</div>
+            <div class="thread-stat"><span>👥</span> ${1+t.replies.length} participants</div>
+            ${t.replies.length?`<div class="thread-last">Last: ${timeAgo(t.replies[t.replies.length-1].ts)}</div>`:''}
+          </div>
+        </div>
+      `).join('');
+    }
+    updateStats();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  OPEN THREAD DETAIL
+  // ═══════════════════════════════════════════════════════
+  function openThread(id) {
+    currentThread = threads.find(t=>t.id===id);
+    if (!currentThread) return;
+    document.getElementById('thread-list-view').style.display='none';
+    document.getElementById('thread-detail').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+    document.getElementById('detail-content').innerHTML=`
+      <div class="detail-header">
+        <div class="detail-meta">
+          <span class="tag ${TAG_MAP[currentThread.cat]}">${TAG_LABEL[currentThread.cat]}</span>
+          <span class="thread-time">${timeAgo(currentThread.ts)}</span>
+        </div>
+        <div class="detail-title">${currentThread.title}</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div class="thread-avatar" style="background:${colorFor(currentThread.name)};width:36px;height:36px;font-size:.85rem">${initials(currentThread.name)}</div>
+          <div>
+            <div style="font-size:.9rem;font-weight:500;color:var(--cream)">${currentThread.name}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)">${currentThread.dept||''}</div>
+          </div>
+        </div>
+        <div class="detail-body">${currentThread.body}</div>
+      </div>`;
+    renderReplies();
+  }
+
+  function renderReplies() {
+    const sec = document.getElementById('replies-section');
+    const r   = currentThread.replies || [];
+    sec.innerHTML = `<div class="replies-label">${r.length} Repl${r.length===1?'y':'ies'}</div>` +
+      (r.length ? r.map((rep,idx)=>`
+        <div class="reply-card" id="reply-${idx}">
+          <div class="reply-header">
+            <div class="reply-avatar" style="background:${colorFor(rep.name)}">${initials(rep.name)}</div>
+            <div>
+              <div class="reply-name">${rep.name}${rep.dept?` <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);font-weight:300">· ${rep.dept}</span>`:''}</div>
+              <div class="reply-time">${timeAgo(rep.ts)}</div>
+            </div>
+          </div>
+          ${rep.quoteName?`
+            <div class="quote-block">
+              <div class="quote-author">Replying to ${rep.quoteName}</div>
+              <div class="quote-text">${rep.quoteText}</div>
+            </div>`:''}
+          <div class="reply-body">${rep.body}</div>
+          <button class="reply-to-btn" onclick="quoteReply(${idx})">↩️ Reply to ${rep.name.split(' ')[0]}</button>
+        </div>`).join('')
+      : `<div class="empty-state" style="padding:32px 0"><div>💬</div><p>No replies yet — be the first!</p></div>`);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  QUOTE & REPLY
+  // ═══════════════════════════════════════════════════════
+  function quoteReply(idx) {
+    const rep = currentThread.replies[idx];
+    activeQuote = { name:rep.name, text:rep.body };
+    document.getElementById('quote-preview-author').textContent = 'Replying to '+rep.name;
+    document.getElementById('quote-preview-text').textContent   = rep.body.length>120 ? rep.body.slice(0,120)+'…' : rep.body;
+    document.getElementById('quote-preview').classList.add('visible');
+    document.getElementById('reply-form-title').textContent = '↩️ Replying to '+rep.name.split(' ')[0];
+    document.querySelector('.reply-form').scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>document.getElementById('reply-body').focus(), 400);
+  }
+  function clearQuote() {
+    activeQuote = null;
+    document.getElementById('quote-preview').classList.remove('visible');
+    document.getElementById('reply-form-title').textContent = '✍️ Add Your Reply';
+  }
+
+  function showList() {
+    document.getElementById('thread-detail').style.display='none';
+    document.getElementById('thread-list-view').style.display='block';
+    currentThread=null; clearQuote();
+    ['reply-name','reply-dept','reply-body'].forEach(id=>document.getElementById(id).value='');
+    window.scrollTo({top:0,behavior:'smooth'});
+    renderList();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  SUBMIT REPLY
+  // ═══════════════════════════════════════════════════════
+  async function submitReply() {
+    const name = document.getElementById('reply-name').value.trim();
+    const dept = document.getElementById('reply-dept').value.trim();
+    const body = document.getElementById('reply-body').value.trim();
+    if (!name||!body) { showToast('Please enter your name and reply.','error'); return; }
+
+    const reply = { name, dept, body, ts:Date.now() };
+    if (activeQuote) { reply.quoteName=activeQuote.name; reply.quoteText=activeQuote.text; }
+
+    const btn = document.getElementById('reply-submit-btn');
+    btn.disabled=true; btn.textContent='Posting...';
+
+    if (firebaseReady) {
+      try {
+        await window._updateDoc(
+          window._doc(window._db,'threads',currentThread.id),
+          { replies: window._arrayUnion(reply) }
+        );
+        showToast('Reply posted!');
+      } catch(e) {
+        showToast('Could not post reply','error'); console.error(e);
+      }
+    } else {
+      // demo mode — update locally
+      currentThread.replies.push(reply);
+      renderReplies(); updateStats();
+      updateRecentlyActive();
+      showToast('Reply posted (demo mode)');
+    }
+
+    clearQuote();
+    ['reply-name','reply-dept','reply-body'].forEach(id=>document.getElementById(id).value='');
+    btn.disabled=false; btn.textContent='Post Reply →';
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  SUBMIT NEW THREAD
+  // ═══════════════════════════════════════════════════════
+  async function submitThread() {
+    const name  = document.getElementById('new-name').value.trim();
+    const dept  = document.getElementById('new-dept').value.trim();
+    const cat   = document.getElementById('new-cat').value;
+    const title = document.getElementById('new-title').value.trim();
+    const body  = document.getElementById('new-body').value.trim();
+    if (!name||!title||!body) { showToast('Please fill in name, title and message.','error'); return; }
+
+    const btn = document.getElementById('thread-submit-btn');
+    btn.disabled=true; btn.textContent='Posting...';
+
+    const newThread = { pinned:false, cat, name, dept, title, body, ts:Date.now(), replies:[] };
+
+    if (firebaseReady) {
+      try {
+        await window._addDoc(window._collection(window._db,'threads'), newThread);
+        showToast('Thread posted! 🎉');
+        closeModal();
+      } catch(e) {
+        showToast('Could not post thread','error'); console.error(e);
+      }
+    } else {
+      // demo mode
+      threads.unshift({ id:Date.now().toString(), ...newThread });
+      renderList(); closeModal();
+      updateRecentlyActive();
+      showToast('Thread posted (demo mode) 🎉');
+    }
+
+    btn.disabled=false; btn.textContent='Post Thread →';
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  MODAL
+  // ═══════════════════════════════════════════════════════
+  function openNewThread() { document.getElementById('overlay').classList.add('open'); }
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+    ['new-name','new-dept','new-title','new-body'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('new-cat').value='general';
+  }
+  function closeOverlay(e) { if(e.target===document.getElementById('overlay')) closeModal(); }
+
+  // ═══════════════════════════════════════════════════════
+  //  FILTER / SORT / SEARCH
+  // ═══════════════════════════════════════════════════════
+  function filterCat(cat,btn) {
+    currentCat=cat;
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const labels={all:'All Threads',general:'General Chat',reunion:'Reunion',memory:'Memories',achieve:'Achievements',announce:'Announcements'};
+    document.getElementById('toolbar-label').textContent=labels[cat];
+    renderList();
+  }
+  function sortThreads(mode,btn) {
+    sortMode=mode;
+    document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderList();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  STATS
+  // ═══════════════════════════════════════════════════════
+  function updateStats() {
+    const total   = threads.length;
+    const replies = threads.reduce((s,t)=>s+t.replies.length,0);
+    ['stat-threads','hero-threads'].forEach(id=>document.getElementById(id).textContent=total);
+    ['stat-replies','hero-replies'].forEach(id=>document.getElementById(id).textContent=replies);
+    document.getElementById('count-all').textContent=total;
+    ['general','reunion','memory','achieve','announce'].forEach(cat=>{
+      const el=document.getElementById('count-'+cat);
+      if(el) el.textContent=threads.filter(t=>t.cat===cat).length;
+    });
+  }
+</script>
+</body>
+</html>
