@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BUET83 Alumni – Events & Reunions</title>
+  <link rel="stylesheet" href="buet83.css"/>
+  <style>
+    .events-grid{display:grid;grid-template-columns:1fr 340px;gap:32px;margin-top:48px}
+    .ev-card{background:var(--dark3);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;cursor:pointer;transition:all .3s}
+    .ev-card:hover{border-color:rgba(192,57,43,.4);transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,.4)}
+    .ev-card-top{display:flex;gap:0}
+    .ev-date-block{flex-shrink:0;width:100px;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px}
+    .ev-date-block .month{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:4px}
+    .ev-date-block .day{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:var(--gold2);line-height:1}
+    .ev-date-block .year{font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.6);margin-top:4px}
+    .ev-content{padding:24px;flex:1}
+    .ev-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);margin:10px 0 10px}
+    .ev-desc{font-size:.88rem;color:var(--muted);line-height:1.72;margin-bottom:16px}
+    .ev-details{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px}
+    .ev-detail{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5)}
+    .ev-detail strong{color:var(--white)}
+    .ev-actions{display:flex;gap:10px;flex-wrap:wrap}
+    /* Past events */
+    .ev-card.past{opacity:.6}
+    .ev-card.past:hover{opacity:.8}
+    /* Timeline -->*/
+    .timeline{position:relative;padding-left:32px}
+    .timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--red),var(--gold),transparent)}
+    .tl-item{position:relative;margin-bottom:32px}
+    .tl-dot{position:absolute;left:-26px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid var(--gold);box-shadow:0 0 12px rgba(192,57,43,.4)}
+    .tl-year{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--gold2);margin-bottom:4px}
+    .tl-event{font-size:.88rem;color:var(--muted);line-height:1.6}
+    .tl-event strong{color:var(--white)}
+    /* Sidebar */
+    .sb-card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+    .sb-title{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .chapter-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+    .chapter-item:last-child{border-bottom:none}
+    .chapter-name{color:var(--white);font-weight:500}
+    .chapter-count{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)}
+    .rsvp-box{background:linear-gradient(135deg,rgba(192,57,43,.15),rgba(192,57,43,.05));border:1px solid rgba(192,57,43,.3);border-radius:12px;padding:24px;text-align:center}
+    .rsvp-box h4{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:8px}
+    .rsvp-box p{font-size:.83rem;color:var(--muted);margin-bottom:16px;line-height:1.6}
+    .tabs{display:flex;gap:0;margin-bottom:32px;border-bottom:1px solid var(--border)}
+    .tab{padding:12px 24px;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
+    .tab.active{color:var(--red3);border-bottom-color:var(--red3)}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    @media(max-width:900px){.events-grid{grid-template-columns:1fr}.ev-card-top{flex-direction:column}.ev-date-block{width:100%;flex-direction:row;gap:12px;padding:16px 20px}}
+  </style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="index.html" class="nav-logo"><img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/>
+    <div class="nav-brand"><div class="nb-name">BUET83</div><div class="nb-sub">Alumni Network</div></div></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a><a href="news.html">News</a>
+    <a href="forum.html">Forum</a><a href="events.html" class="active">Events</a>
+    <a href="members.html">Members</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a>
+  </div>
+  <button class="nav-cta">Join the Network</button>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div>
+        <div class="ph-tag">Mark Your Calendar</div>
+        <h1 class="ph-title">Events & <em>Reunions</em></h1>
+        <p class="ph-sub">From intimate chapter dinners to grand annual reunions — stay connected with the BUET83 batch worldwide.</p>
+      </div>
+      <div class="ph-stats">
+        <div class="phs"><span class="phs-n">3</span><span class="phs-l">Upcoming</span></div>
+        <div class="phs"><span class="phs-n">12</span><span class="phs-l">Chapters</span></div>
+        <div class="phs"><span class="phs-n">23</span><span class="phs-l">Countries</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('upcoming',this)">Upcoming Events</button>
+      <button class="tab" onclick="showTab('past',this)">Past Events</button>
+      <button class="tab" onclick="showTab('history',this)">Reunion History</button>
+    </div>
+
+    <div class="events-grid">
+      <div>
+        <!-- UPCOMING -->
+        <div class="tab-content active" id="tab-upcoming">
+          <div class="ev-card reveal">
+            <div class="ev-card-top">
+              <div class="ev-date-block"><span class="month">May</span><span class="day">20</span><span class="year">2026</span></div>
+              <div class="ev-content">
+                <span class="tag tag-reunion">Reunion Dinner</span>
+                <div class="ev-title">Toronto Chapter Alumni Dinner 2026</div>
+                <div class="ev-desc">The annual Toronto chapter dinner returns! Join fellow BUET83 alumni for an evening of food, laughter and memories at the iconic Sheraton Centre. Spouses and family warmly welcome.</div>
+                <div class="ev-details">
+                  <div class="ev-detail">📍 <strong>Sheraton Centre, Toronto</strong></div>
+                  <div class="ev-detail">⏰ <strong>7:00 PM – 10:30 PM</strong></div>
+                  <div class="ev-detail">👥 <strong>~45 attendees expected</strong></div>
+                  <div class="ev-detail">💵 <strong>CAD $85 per person</strong></div>
+                </div>
+                <div class="ev-actions">
+                  <button class="btn-red">RSVP Now</button>
+                  <button class="btn-outline">Add to Calendar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ev-card reveal">
+            <div class="ev-card-top">
+              <div class="ev-date-block"><span class="month">Jun</span><span class="day">14</span><span class="year">2026</span></div>
+              <div class="ev-content">
+                <span class="tag tag-general">Chapter Meetup</span>
+                <div class="ev-title">Dhaka Chapter Meetup — BUET Campus</div>
+                <div class="ev-desc">Walk the halls of BUET again! The Dhaka chapter invites all batchmates for an informal campus meetup followed by lunch. A chance to reminisce where it all began in 1983.</div>
+                <div class="ev-details">
+                  <div class="ev-detail">📍 <strong>BUET Campus, Dhaka</strong></div>
+                  <div class="ev-detail">⏰ <strong>10:00 AM – 2:00 PM</strong></div>
+                  <div class="ev-detail">👥 <strong>~60 attendees expected</strong></div>
+                  <div class="ev-detail">💵 <strong>Free entry</strong></div>
+                </div>
+                <div class="ev-actions">
+                  <button class="btn-red">RSVP Now</button>
+                  <button class="btn-outline">Add to Calendar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ev-card reveal">
+            <div class="ev-card-top">
+              <div class="ev-date-block"><span class="month">Dec</span><span class="day">07</span><span class="year">2026</span></div>
+              <div class="ev-content">
+                <span class="tag tag-reunion">Grand Reunion</span>
+                <div class="ev-title">Annual Grand Reunion 2026 — Save the Date!</div>
+                <div class="ev-desc">The most anticipated event of the year! Venue to be announced. This will be a full weekend event with programs for spouses and children too. Start planning your travel now!</div>
+                <div class="ev-details">
+                  <div class="ev-detail">📍 <strong>Venue TBA — Dhaka</strong></div>
+                  <div class="ev-detail">⏰ <strong>Full Day Event</strong></div>
+                  <div class="ev-detail">👥 <strong>All batch members</strong></div>
+                  <div class="ev-detail">💵 <strong>Registration opening soon</strong></div>
+                </div>
+                <div class="ev-actions">
+                  <button class="btn-gold">Express Interest</button>
+                  <button class="btn-outline">Get Notified</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAST -->
+        <div class="tab-content" id="tab-past">
+          <div class="ev-card past reveal">
+            <div class="ev-card-top">
+              <div class="ev-date-block"><span class="month">Jan</span><span class="day">15</span><span class="year">2026</span></div>
+              <div class="ev-content">
+                <span class="tag tag-reunion">Past Event</span>
+                <div class="ev-title">New Year Gathering — Sydney Chapter</div>
+                <div class="ev-desc">The Sydney chapter kicked off 2026 with a wonderful New Year lunch at a harbourside restaurant. 18 alumni attended with families.</div>
+                <div class="ev-details">
+                  <div class="ev-detail">📍 <strong>Sydney, Australia</strong></div>
+                  <div class="ev-detail">👥 <strong>18 attendees</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ev-card past reveal">
+            <div class="ev-card-top">
+              <div class="ev-date-block"><span class="month">Dec</span><span class="day">10</span><span class="year">2025</span></div>
+              <div class="ev-content">
+                <span class="tag tag-reunion">Past Event</span>
+                <div class="ev-title">Grand Reunion 2025 — Dhaka</div>
+                <div class="ev-desc">Over 150 alumni gathered for the 2025 grand reunion at Radisson Blu, Dhaka. An unforgettable evening of friendship and nostalgia.</div>
+                <div class="ev-details">
+                  <div class="ev-detail">📍 <strong>Radisson Blu, Dhaka</strong></div>
+                  <div class="ev-detail">👥 <strong>150+ attendees</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="tab-content" id="tab-history">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:28px">Our Reunion <em style="color:var(--gold2)">Legacy</em></h3>
+          <div class="timeline">
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">2025</div><div class="tl-event"><strong>Grand Reunion — Radisson Blu, Dhaka.</strong> 150+ alumni gathered. First reunion with dedicated children's program.</div></div>
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">2023</div><div class="tl-event"><strong>40th Anniversary Reunion — BUET Campus.</strong> Historic milestone — returned to where it all began. 180 alumni attended from 18 countries.</div></div>
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">2020</div><div class="tl-event"><strong>Virtual Reunion — COVID-19 Edition.</strong> First ever virtual reunion via Zoom. 220 alumni connected from across the world.</div></div>
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">2018</div><div class="tl-event"><strong>35th Anniversary Reunion — Pan Pacific, Dhaka.</strong> Grand celebration with cultural program and batch documentary screening.</div></div>
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">2013</div><div class="tl-event"><strong>30th Anniversary Reunion — BUET Auditorium.</strong> Landmark event that launched the BUET83 Scholarship Fund.</div></div>
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">2003</div><div class="tl-event"><strong>20th Anniversary Reunion — Dhaka Sheraton.</strong> The first large-scale reunion with international alumni participation.</div></div>
+            <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-year">1988</div><div class="tl-event"><strong>First Reunion — BUET Campus.</strong> The very first gathering of the batch — 5 years after graduation. 45 alumni attended.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div>
+        <div class="rsvp-box reveal">
+          <h4>Plan an Event</h4>
+          <p>Want to organise a chapter meetup or event? Get in touch with the committee!</p>
+          <button class="btn-red" style="width:100%" onclick="location.href='contact.html'">Contact Committee →</button>
+        </div>
+        <div class="sb-card reveal">
+          <div class="sb-title">🌍 Active Chapters</div>
+          <div class="chapter-item"><span class="chapter-name">🇧🇩 Dhaka</span><span class="chapter-count">~85 members</span></div>
+          <div class="chapter-item"><span class="chapter-name">🇨🇦 Toronto</span><span class="chapter-count">~45 members</span></div>
+          <div class="chapter-item"><span class="chapter-name">🇺🇸 Houston</span><span class="chapter-count">~28 members</span></div>
+          <div class="chapter-item"><span class="chapter-name">🇬🇧 London</span><span class="chapter-count">~22 members</span></div>
+          <div class="chapter-item"><span class="chapter-name">🇦🇺 Sydney</span><span class="chapter-count">~18 members</span></div>
+          <div class="chapter-item"><span class="chapter-name">🇦🇪 Dubai</span><span class="chapter-count">~15 members</span></div>
+        </div>
+        <div class="sb-card reveal">
+          <div class="sb-title">📊 Reunion Stats</div>
+          <div style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);line-height:2.2">
+            <div>Total Reunions: <span style="color:var(--gold2)">12</span></div>
+            <div>Largest Attendance: <span style="color:var(--gold2)">220 (2020)</span></div>
+            <div>Countries Represented: <span style="color:var(--gold2)">23</span></div>
+            <div>Years Running: <span style="color:var(--gold2)">38 years</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="ft-brand"><img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/><h3>BUET83 Alumni Network</h3><p>Forever connected — across time and across the world.</p><div class="ft-social"><a href="#">📘</a><a href="#">💬</a><a href="#">📧</a><a href="#">🌐</a></div></div>
+    <div class="ft-col"><h4>Pages</h4><a href="index.html">Home</a><a href="news.html">News</a><a href="forum.html">Forum</a><a href="events.html">Events</a><a href="members.html">Members</a><a href="gallery.html">Gallery</a></div>
+    <div class="ft-col"><h4>Chapters</h4><a href="#">Dhaka</a><a href="#">Toronto</a><a href="#">London</a><a href="#">Houston</a><a href="#">Sydney</a><a href="#">Dubai</a></div>
+    <div class="ft-col"><h4>Connect</h4><a href="contact.html">Contact Us</a><a href="#">Facebook</a><a href="#">WhatsApp</a><a href="#">Scholarship</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2026 BUET83 Alumni Network</p><p>Built with ❤️ for Class of 1983</p></div>
+</footer>
+<script>
+window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');n.style.background=window.scrollY>50?'rgba(13,13,13,.98)':'rgba(13,13,13,.88)';n.style.boxShadow=window.scrollY>50?'0 4px 32px rgba(0,0,0,.4)':'none'});
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function showTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

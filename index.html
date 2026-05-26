@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BUET83 Alumni Network – Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --red:#c0392b;--red2:#e74c3c;--red3:#ff6b6b;--red4:rgba(192,57,43,.12);
+      --gold:#c9a84c;--gold2:#f0c040;--gold3:#fff3cd;
+      --dark:#0d0d0d;--dark2:#141414;--dark3:#1e1e1e;--dark4:#242424;
+      --white:#ffffff;--cream:#fdf6e3;
+      --muted:rgba(255,255,255,.45);--border:rgba(255,255,255,.07);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--dark);font-family:'Outfit',sans-serif;overflow-x:hidden;color:var(--white)}
+
+    /* ══ NAV ══════════════════════════════════════════ */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      padding:0 60px;height:72px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:rgba(13,13,13,.85);
+      backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(201,168,76,.15);
+      transition:background .3s;
+    }
+    .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .nav-logo img{width:42px;height:42px;object-fit:contain}
+    .nav-logo-txt .name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);letter-spacing:.04em}
+    .nav-logo-txt .sub{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+    .nav-links{display:flex;gap:4px}
+    .nav-links a{
+      padding:8px 16px;font-size:.85rem;font-weight:500;
+      color:var(--muted);text-decoration:none;border-radius:6px;
+      transition:color .2s,background .2s;letter-spacing:.02em;
+    }
+    .nav-links a:hover{color:var(--white);background:rgba(255,255,255,.06)}
+    .nav-links a.active{color:var(--gold2)}
+    .nav-cta{
+      padding:9px 22px;
+      background:linear-gradient(135deg,var(--red),var(--red2));
+      border:none;border-radius:6px;
+      color:var(--white);font-family:'Outfit',sans-serif;
+      font-size:.85rem;font-weight:600;cursor:pointer;
+      box-shadow:0 4px 16px rgba(192,57,43,.35);
+      transition:all .2s;
+    }
+    .nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(192,57,43,.5)}
+
+    /* ══ HERO ═════════════════════════════════════════ */
+    .hero{
+      min-height:100vh;padding-top:72px;
+      display:flex;align-items:center;
+      position:relative;overflow:hidden;
+    }
+    .hero-bg{
+      position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 70% 80% at 75% 50%,rgba(192,57,43,.2) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 60% at 10% 80%,rgba(201,168,76,.08) 0%,transparent 50%),
+        radial-gradient(ellipse 30% 40% at 90% 10%,rgba(231,76,60,.06) 0%,transparent 50%);
+    }
+    .hero-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(201,168,76,.03) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(201,168,76,.03) 1px,transparent 1px);
+      background-size:72px 72px;
+    }
+    .hero-stripe{
+      position:absolute;top:-5%;right:-2%;
+      width:52%;height:110%;
+      background:linear-gradient(160deg,#8b0000 0%,var(--red) 35%,var(--red2) 70%,#c0392b 100%);
+      clip-path:polygon(18% 0%,100% 0%,100% 100%,0% 100%);
+    }
+    .hero-stripe::before{
+      content:'';position:absolute;inset:0;
+      background:repeating-linear-gradient(
+        -45deg,transparent,transparent 20px,
+        rgba(255,255,255,.03) 20px,rgba(255,255,255,.03) 21px
+      );
+    }
+    .hero-stripe-line{
+      position:absolute;top:0;bottom:0;
+      left:calc(48% - 2px);width:3px;
+      background:linear-gradient(180deg,transparent,var(--gold2),var(--gold),transparent);
+    }
+    .hero-inner{
+      position:relative;z-index:2;
+      max-width:1200px;margin:0 auto;padding:80px 60px;
+      display:grid;grid-template-columns:1fr 1fr;
+      align-items:center;gap:48px;width:100%;
+    }
+    /* LEFT */
+    .h-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 18px;border-radius:999px;
+      border:1px solid rgba(201,168,76,.35);
+      background:rgba(201,168,76,.08);
+      font-family:'DM Mono',monospace;font-size:.65rem;
+      letter-spacing:.2em;text-transform:uppercase;color:var(--gold2);
+      margin-bottom:28px;
+      animation:fadeUp .7s ease both;
+    }
+    .h-badge span{color:var(--red3)}
+    .h-title{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(3.2rem,6vw,5.8rem);
+      font-weight:900;line-height:.98;
+      letter-spacing:-.02em;margin-bottom:10px;
+      animation:fadeUp .7s .1s ease both;
+    }
+    .h-title .t-red{color:var(--red3)}
+    .h-title .t-gold{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .h-sub{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(1rem,2vw,1.5rem);
+      font-style:italic;color:var(--gold);
+      letter-spacing:.06em;margin-bottom:24px;
+      animation:fadeUp .7s .2s ease both;
+    }
+    .h-desc{
+      font-size:1.02rem;font-weight:300;
+      color:var(--muted);line-height:1.85;
+      max-width:460px;margin-bottom:40px;
+      animation:fadeUp .7s .3s ease both;
+    }
+    .h-desc strong{color:rgba(255,255,255,.85);font-weight:500}
+    .h-btns{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp .7s .4s ease both}
+    .btn-red{
+      padding:14px 32px;
+      background:linear-gradient(135deg,var(--red),var(--red2));
+      border:none;border-radius:8px;color:var(--white);
+      font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;
+      cursor:pointer;letter-spacing:.02em;
+      box-shadow:0 8px 28px rgba(192,57,43,.4);transition:all .25s;
+    }
+    .btn-red:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(192,57,43,.55)}
+    .btn-ghost{
+      padding:14px 32px;background:transparent;
+      border:1px solid rgba(201,168,76,.45);border-radius:8px;
+      color:var(--gold2);font-family:'Outfit',sans-serif;
+      font-size:.95rem;font-weight:500;cursor:pointer;
+      transition:all .25s;
+    }
+    .btn-ghost:hover{background:rgba(201,168,76,.1);border-color:var(--gold2);transform:translateY(-2px)}
+    /* LOGO RIGHT */
+    .h-logo-wrap{
+      display:flex;align-items:center;justify-content:center;
+      position:relative;animation:fadeIn 1s .4s ease both;
+    }
+    .logo-outer{
+      position:relative;width:420px;height:420px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .logo-glow{
+      position:absolute;inset:-30px;
+      background:radial-gradient(circle,rgba(192,57,43,.3) 0%,rgba(201,168,76,.1) 40%,transparent 70%);
+      border-radius:50%;animation:glow 3.5s ease-in-out infinite;
+    }
+    @keyframes glow{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+    .logo-ring1,.logo-ring2{
+      position:absolute;border-radius:50%;border-style:solid;
+      animation:spin linear infinite;
+    }
+    .logo-ring1{
+      inset:10px;border-width:1px;border-color:rgba(201,168,76,.2) transparent rgba(201,168,76,.2) transparent;
+      animation-duration:15s;
+    }
+    .logo-ring2{
+      inset:30px;border-width:1px;border-color:transparent rgba(192,57,43,.3) transparent rgba(192,57,43,.3);
+      animation-duration:10s;animation-direction:reverse;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .logo-img{
+      width:320px;height:320px;object-fit:contain;position:relative;z-index:1;
+      filter:drop-shadow(0 24px 60px rgba(192,57,43,.5)) drop-shadow(0 0 40px rgba(201,168,76,.25));
+      animation:float 4.5s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    /* dots decoration */
+    .logo-dots{
+      position:absolute;bottom:-20px;right:-20px;
+      width:120px;height:120px;
+      background-image:radial-gradient(rgba(201,168,76,.3) 1.5px,transparent 1.5px);
+      background-size:16px 16px;border-radius:50%;
+      opacity:.5;
+    }
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+    /* ══ STATS ════════════════════════════════════════ */
+    .stats{
+      background:linear-gradient(135deg,#7a0000 0%,var(--red) 40%,var(--red2) 100%);
+      padding:36px 60px;
+      display:flex;justify-content:center;gap:0;
+      border-top:2px solid var(--gold);
+      border-bottom:2px solid rgba(201,168,76,.25);
+      position:relative;overflow:hidden;
+    }
+    .stats::before{
+      content:'';position:absolute;inset:0;
+      background:repeating-linear-gradient(90deg,transparent,transparent 99px,rgba(255,255,255,.06) 99px,rgba(255,255,255,.06) 100px);
+    }
+    .stat{
+      text-align:center;padding:0 48px;position:relative;z-index:1;
+      border-right:1px solid rgba(255,255,255,.15);
+    }
+    .stat:last-child{border-right:none}
+    .sn{
+      font-family:'Playfair Display',serif;
+      font-size:3rem;font-weight:900;
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      display:block;line-height:1;
+    }
+    .sl{
+      font-family:'DM Mono',monospace;font-size:.62rem;
+      letter-spacing:.2em;text-transform:uppercase;
+      color:rgba(255,255,255,.75);margin-top:6px;display:block;
+    }
+
+    /* ══ FEATURES ═════════════════════════════════════ */
+    .features{background:var(--dark2);padding:100px 60px}
+    .sec-head{max-width:1200px;margin:0 auto 56px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end}
+    .sec-tag{
+      font-family:'DM Mono',monospace;font-size:.65rem;
+      letter-spacing:.25em;text-transform:uppercase;color:var(--red2);
+      display:flex;align-items:center;gap:10px;margin-bottom:12px;
+    }
+    .sec-tag::before{content:'';width:28px;height:2px;background:var(--red2);border-radius:2px}
+    .sec-title{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2rem,4vw,3.2rem);font-weight:900;
+      line-height:1.1;color:var(--white);
+    }
+    .sec-title em{font-style:italic;color:var(--gold2)}
+    .sec-sub{font-size:.97rem;color:var(--muted);line-height:1.8}
+    .feat-grid{
+      max-width:1200px;margin:0 auto;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+    }
+    .fc{
+      background:var(--dark3);border:1px solid var(--border);
+      border-radius:16px;padding:36px 28px;
+      position:relative;overflow:hidden;cursor:pointer;
+      transition:transform .3s,border-color .3s,box-shadow .3s;
+    }
+    .fc:hover{transform:translateY(-8px);border-color:rgba(192,57,43,.4);box-shadow:0 24px 56px rgba(0,0,0,.5),0 0 0 1px rgba(192,57,43,.15)}
+    .fc::after{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--red),var(--gold2),var(--red));
+      transform:scaleX(0);transition:transform .3s;
+    }
+    .fc:hover::after{transform:scaleX(1)}
+    .fc-icon{
+      width:54px;height:54px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;font-size:24px;
+      margin-bottom:22px;
+      background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(192,57,43,.06));
+      border:1px solid rgba(192,57,43,.25);
+    }
+    .fc-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--white);margin-bottom:10px}
+    .fc-desc{font-size:.87rem;color:var(--muted);line-height:1.72}
+    .fc-arrow{
+      display:inline-flex;align-items:center;gap:6px;margin-top:18px;
+      font-family:'DM Mono',monospace;font-size:.65rem;
+      letter-spacing:.12em;text-transform:uppercase;color:var(--red3);
+      text-decoration:none;transition:gap .2s;
+    }
+    .fc:hover .fc-arrow{gap:12px}
+
+    /* ══ NEWS ═════════════════════════════════════════ */
+    .news-section{background:var(--dark);padding:100px 60px}
+    .news-grid{
+      max-width:1200px;margin:56px auto 0;
+      display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:20px;
+    }
+    .nc{
+      background:var(--dark3);border:1px solid var(--border);
+      border-radius:16px;overflow:hidden;cursor:pointer;
+      transition:transform .3s,box-shadow .3s;
+    }
+    .nc:hover{transform:translateY(-6px);box-shadow:0 24px 56px rgba(0,0,0,.5)}
+    .nc-img{
+      height:220px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:3rem;position:relative;overflow:hidden;
+      border-bottom:1px solid var(--border);
+    }
+    .nc:first-child .nc-img{height:280px}
+    .nc-img.red{background:linear-gradient(135deg,rgba(192,57,43,.35),rgba(139,0,0,.2))}
+    .nc-img.gold{background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(201,168,76,.08))}
+    .nc-img.blue{background:linear-gradient(135deg,rgba(74,111,165,.25),rgba(74,111,165,.08))}
+    .nc-body{padding:24px}
+    .nc-tag{
+      display:inline-block;padding:3px 10px;border-radius:3px;
+      font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .nc-tag.reunion{background:rgba(201,168,76,.12);color:var(--gold2);border:1px solid rgba(201,168,76,.25)}
+    .nc-tag.achieve{background:rgba(74,111,165,.12);color:#9eb3f5;border:1px solid rgba(74,111,165,.25)}
+    .nc-tag.announce{background:rgba(192,57,43,.12);color:var(--red3);border:1px solid rgba(192,57,43,.25)}
+    .nc-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:10px}
+    .nc:first-child .nc-title{font-size:1.3rem}
+    .nc-meta{font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.3)}
+    .nc-excerpt{font-size:.83rem;color:var(--muted);line-height:1.65;margin:8px 0;display:none}
+    .nc:first-child .nc-excerpt{display:block}
+    .view-all{
+      display:flex;justify-content:center;margin-top:40px;
+    }
+    .btn-outline-red{
+      padding:13px 36px;background:transparent;
+      border:1px solid rgba(192,57,43,.4);border-radius:8px;
+      color:var(--red3);font-family:'Outfit',sans-serif;
+      font-size:.9rem;font-weight:500;cursor:pointer;
+      transition:all .25s;letter-spacing:.03em;
+    }
+    .btn-outline-red:hover{background:rgba(192,57,43,.1);border-color:var(--red3);transform:translateY(-2px)}
+
+    /* ══ FORUM PREVIEW ════════════════════════════════ */
+    .forum-prev{
+      background:var(--dark2);padding:100px 60px;
+      position:relative;overflow:hidden;
+    }
+    .forum-prev::before{
+      content:'FORUM';
+      position:absolute;right:-40px;top:50%;transform:translateY(-50%);
+      font-family:'Playfair Display',serif;font-size:14rem;font-weight:900;
+      color:rgba(192,57,43,.04);line-height:1;pointer-events:none;user-select:none;
+    }
+    .fp-grid{
+      max-width:1200px;margin:56px auto 0;
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;
+    }
+    .tp{
+      background:var(--dark);border:1px solid var(--border);
+      border-radius:12px;padding:20px 24px;
+      display:flex;gap:14px;cursor:pointer;
+      transition:border-color .2s,transform .2s,box-shadow .2s;
+    }
+    .tp:hover{border-color:rgba(192,57,43,.35);transform:translateX(5px);box-shadow:4px 0 20px rgba(0,0,0,.3)}
+    .tp-av{
+      width:44px;height:44px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--dark);
+    }
+    .tp-body{flex:1;min-width:0}
+    .tp-title{font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:5px;line-height:1.3}
+    .tp-meta{font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.3)}
+    .tp-rep{
+      font-family:'DM Mono',monospace;font-size:.62rem;
+      color:var(--red3);margin-top:7px;display:flex;align-items:center;gap:5px;
+    }
+    .forum-cta{display:flex;justify-content:center;margin-top:40px}
+
+    /* ══ EVENTS STRIP ════════════════════════════════ */
+    .events-strip{background:var(--dark3);padding:80px 60px;border-top:1px solid var(--border)}
+    .ev-grid{
+      max-width:1200px;margin:48px auto 0;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+    }
+    .ev{
+      display:flex;gap:18px;align-items:flex-start;
+      background:var(--dark2);border:1px solid var(--border);
+      border-radius:12px;padding:22px;
+      transition:border-color .2s,transform .2s;cursor:pointer;
+    }
+    .ev:hover{border-color:rgba(201,168,76,.3);transform:translateY(-4px)}
+    .ev-date{
+      flex-shrink:0;width:52px;text-align:center;
+      background:linear-gradient(135deg,var(--red),var(--red2));
+      border-radius:10px;padding:10px 6px;
+    }
+    .ev-m{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.8);display:block}
+    .ev-d{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--gold2);display:block;line-height:1}
+    .ev-info h4{font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:4px;line-height:1.3}
+    .ev-info p{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)}
+    .ev-info .ev-tag{
+      display:inline-block;margin-top:8px;padding:3px 8px;border-radius:3px;
+      font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;
+      background:rgba(201,168,76,.12);color:var(--gold2);border:1px solid rgba(201,168,76,.25);
+    }
+
+    /* ══ TESTIMONIAL / QUOTE ══════════════════════════ */
+    .quote-section{
+      background:linear-gradient(135deg,#7a0000 0%,var(--red) 50%,#8b0000 100%);
+      padding:80px 60px;text-align:center;
+      position:relative;overflow:hidden;
+      border-top:2px solid var(--gold);border-bottom:2px solid var(--gold);
+    }
+    .quote-section::before{
+      content:'❝';position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+      font-size:18rem;color:rgba(255,255,255,.04);font-family:'Playfair Display',serif;
+      line-height:1;pointer-events:none;
+    }
+    .q-text{
+      font-family:'Playfair Display',serif;font-style:italic;
+      font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;
+      color:var(--white);max-width:800px;margin:0 auto 24px;
+      line-height:1.45;position:relative;z-index:1;
+    }
+    .q-text span{color:var(--gold2)}
+    .q-author{
+      font-family:'DM Mono',monospace;font-size:.72rem;
+      letter-spacing:.18em;text-transform:uppercase;
+      color:rgba(255,255,255,.6);position:relative;z-index:1;
+    }
+
+    /* ══ FOOTER ══════════════════════════════════════ */
+    footer{
+      background:var(--dark);
+      border-top:1px solid rgba(201,168,76,.2);
+      padding:60px 60px 32px;
+    }
+    .footer-top{
+      max-width:1200px;margin:0 auto;
+      display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;
+      padding-bottom:48px;border-bottom:1px solid var(--border);
+    }
+    .ft-brand img{width:56px;height:56px;object-fit:contain;margin-bottom:14px}
+    .ft-brand h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--white);margin-bottom:6px}
+    .ft-brand p{font-size:.85rem;color:var(--muted);line-height:1.7;max-width:260px}
+    .ft-social{display:flex;gap:10px;margin-top:20px}
+    .ft-social a{
+      width:36px;height:36px;border-radius:8px;
+      border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+      font-size:.9rem;text-decoration:none;transition:all .2s;
+    }
+    .ft-social a:hover{border-color:rgba(192,57,43,.4);background:rgba(192,57,43,.1)}
+    .ft-col h4{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:18px}
+    .ft-col a{display:block;font-size:.87rem;color:var(--muted);text-decoration:none;margin-bottom:10px;transition:color .2s}
+    .ft-col a:hover{color:var(--white)}
+    .footer-bottom{
+      max-width:1200px;margin:0 auto;padding-top:24px;
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    }
+    .footer-bottom p{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;color:rgba(255,255,255,.25)}
+
+    /* ══ RESPONSIVE ══════════════════════════════════ */
+    @media(max-width:1024px){
+      .hero-inner,.sec-head,.feat-grid,.news-grid,.fp-grid,.ev-grid,.footer-top{grid-template-columns:1fr}
+      .h-logo-wrap{display:none}
+      nav,nav .nav-links{padding:0 24px}
+      .features,.news-section,.forum-prev,.events-strip,.stats,.quote-section,footer{padding-left:24px;padding-right:24px}
+      .stat{padding:0 20px}
+    }
+    @media(max-width:768px){
+      .feat-grid{grid-template-columns:1fr}
+      .news-grid{grid-template-columns:1fr}
+      .fp-grid{grid-template-columns:1fr}
+      .ev-grid{grid-template-columns:1fr}
+      nav .nav-links{display:none}
+      .hero-inner{padding:48px 24px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="forum.html" class="nav-logo">
+    <img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/>
+    <div class="nav-logo-txt">
+      <div class="name">BUET83</div>
+      <div class="sub">Alumni Network</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="forum.html" class="active">Home</a>
+    <a href="news.html">News</a>
+    <a href="forum.html">Forum</a>
+    <a href="#">Events</a>
+    <a href="#">Members</a>
+    <a href="#">Gallery</a>
+  </div>
+  <button class="nav-cta">Join the Network</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-stripe"></div>
+  <div class="hero-stripe-line"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="h-badge">✦ <span>Bangladesh</span> University of Engineering & Technology</div>
+      <h1 class="h-title">
+        <span class="t-red">BUET</span><br>
+        Alumni<br>
+        <span class="t-gold">'83</span>
+      </h1>
+      <div class="h-sub">Forever Connected · Class of 1983</div>
+      <p class="h-desc">
+        A community of <strong>347 engineers</strong> spread across <strong>23 countries</strong> —
+        bound by friendship, shaped by BUET, and united across four decades.
+      </p>
+      <div class="h-btns">
+        <button class="btn-red" onclick="location.href='forum.html'">Join the Forum</button>
+        <button class="btn-ghost" onclick="location.href='news.html'">Read the News</button>
+      </div>
+    </div>
+    <div class="h-logo-wrap">
+      <div class="logo-outer">
+        <div class="logo-glow"></div>
+        <div class="logo-ring1"></div>
+        <div class="logo-ring2"></div>
+        <img class="logo-img" src="logo.png" onerror="this.style.display='none'" alt="BUET83 Logo"/>
+        <div class="logo-dots"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><span class="sn">347</span><span class="sl">Alumni Members</span></div>
+  <div class="stat"><span class="sn">23</span><span class="sl">Countries</span></div>
+  <div class="stat"><span class="sn">43</span><span class="sl">Years Together</span></div>
+  <div class="stat"><span class="sn">12</span><span class="sl">Global Chapters</span></div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="sec-head">
+    <div>
+      <div class="sec-tag">Everything in One Place</div>
+      <h2 class="sec-title">Your Alumni Hub,<br><em>Reimagined</em></h2>
+    </div>
+    <p class="sec-sub">Built for the BUET83 batch — stay connected, celebrate milestones, plan reunions, and keep the spirit alive no matter where life takes you.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="fc" onclick="location.href='forum.html'">
+      <div class="fc-icon">💬</div>
+      <div class="fc-title">Discussion Forum</div>
+      <div class="fc-desc">Real conversations between batchmates. Create threads, reply, quote — just like being back at BUET. Powered by real-time Firebase.</div>
+      <a class="fc-arrow">Open Forum →</a>
+    </div>
+    <div class="fc">
+      <div class="fc-icon">📅</div>
+      <div class="fc-title">Events & Reunions</div>
+      <div class="fc-desc">Never miss a reunion, dinner, or virtual meetup. RSVP and stay in the loop with your local chapter worldwide.</div>
+      <a class="fc-arrow">View Events →</a>
+    </div>
+    <div class="fc" onclick="location.href='news.html'">
+      <div class="fc-icon">📰</div>
+      <div class="fc-title">News & Updates</div>
+      <div class="fc-desc">Achievements, announcements, and memories from across the batch — curated and always fresh.</div>
+      <a class="fc-arrow">Read News →</a>
+    </div>
+    <div class="fc">
+      <div class="fc-icon">👥</div>
+      <div class="fc-title">Members Directory</div>
+      <div class="fc-desc">Find a batchmate by name, department, or country. Reconnect with lost contacts instantly.</div>
+      <a class="fc-arrow">Find Members →</a>
+    </div>
+    <div class="fc">
+      <div class="fc-icon">📸</div>
+      <div class="fc-title">Photo Gallery</div>
+      <div class="fc-desc">From 1983 to today — share and relive the moments that define our extraordinary batch.</div>
+      <a class="fc-arrow">View Gallery →</a>
+    </div>
+    <div class="fc">
+      <div class="fc-icon">🎓</div>
+      <div class="fc-title">Scholarship Fund</div>
+      <div class="fc-desc">Give back to BUET. Support the next generation of engineers in the proud name of our batch.</div>
+      <a class="fc-arrow">Contribute →</a>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="news-section">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="sec-tag">Latest from the Batch</div>
+    <h2 class="sec-title" style="margin-bottom:0">News & <em style="color:var(--gold2);font-style:italic">Updates</em></h2>
+  </div>
+  <div class="news-grid">
+    <div class="nc">
+      <div class="nc-img red">🎉</div>
+      <div class="nc-body">
+        <span class="nc-tag reunion">Reunion</span>
+        <div class="nc-title">Golden Jubilee Reunion 2026 — 40+ Years of Friendship Celebrated in Style</div>
+        <div class="nc-excerpt">Over 120 alumni gathered — many joining virtually from Toronto, London, Houston, and Sydney. A night of memories, laughter, and pride.</div>
+        <div class="nc-meta">May 10, 2026 · Hasan Imam</div>
+      </div>
+    </div>
+    <div class="nc">
+      <div class="nc-img gold">🏆</div>
+      <div class="nc-body">
+        <span class="nc-tag achieve">Achievement</span>
+        <div class="nc-title">Dr. Rafiq Elected Fellow of the Royal Academy of Engineering</div>
+        <div class="nc-meta">April 15, 2026</div>
+      </div>
+    </div>
+    <div class="nc">
+      <div class="nc-img blue">📣</div>
+      <div class="nc-body">
+        <span class="nc-tag announce">Announcement</span>
+        <div class="nc-title">Toronto Alumni Dinner — May 20 at Sheraton Centre</div>
+        <div class="nc-meta">April 28, 2026</div>
+      </div>
+    </div>
+  </div>
+  <div class="view-all">
+    <button class="btn-outline-red" onclick="location.href='news.html'">View All News →</button>
+  </div>
+</section>
+
+<!-- FORUM PREVIEW -->
+<section class="forum-prev">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="sec-tag">Join the Conversation</div>
+    <h2 class="sec-title">Active <em style="color:var(--gold2);font-style:italic">Discussions</em></h2>
+  </div>
+  <div class="fp-grid">
+    <div class="tp"><div class="tp-av" style="background:linear-gradient(135deg,#c8a84b,#8a6820)">HI</div><div class="tp-body"><div class="tp-title">Who is coming to the Toronto Alumni Dinner this May?</div><div class="tp-meta">Hasan Imam · General · 2h ago</div><div class="tp-rep">💬 12 replies</div></div></div>
+    <div class="tp"><div class="tp-av" style="background:linear-gradient(135deg,#4a7c6f,#2a4c44)">RK</div><div class="tp-body"><div class="tp-title">Memories of Prof. Siddiqui's legendary fluid mechanics class</div><div class="tp-meta">Rezaul Karim · Memories · 1d ago</div><div class="tp-rep">💬 8 replies</div></div></div>
+    <div class="tp"><div class="tp-av" style="background:linear-gradient(135deg,#4a6fa5,#2a4070)">SA</div><div class="tp-body"><div class="tp-title">Congratulations to Dr. Rafiq — FREng! Our batch is making history</div><div class="tp-meta">Shahed Alam · Achievement · 3d ago</div><div class="tp-rep">💬 24 replies</div></div></div>
+    <div class="tp"><div class="tp-av" style="background:linear-gradient(135deg,#b85c38,#7a3c22)">NS</div><div class="tp-body"><div class="tp-title">Virtual Zoom batch meetup this month — who is in?</div><div class="tp-meta">Nargis Sultana · General · 5d ago</div><div class="tp-rep">💬 6 replies</div></div></div>
+  </div>
+  <div class="forum-cta">
+    <button class="btn-red" onclick="location.href='forum.html'">Open the Forum →</button>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section class="events-strip">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="sec-tag">Mark Your Calendar</div>
+    <h2 class="sec-title">Upcoming <em style="color:var(--gold2);font-style:italic">Events</em></h2>
+  </div>
+  <div class="ev-grid">
+    <div class="ev">
+      <div class="ev-date"><span class="ev-m">May</span><span class="ev-d">20</span></div>
+      <div class="ev-info"><h4>Toronto Alumni Dinner</h4><p>Sheraton Centre, Toronto, Canada</p><span class="ev-tag">In Person</span></div>
+    </div>
+    <div class="ev">
+      <div class="ev-date"><span class="ev-m">Jun</span><span class="ev-d">14</span></div>
+      <div class="ev-info"><h4>Dhaka Chapter Meetup</h4><p>BUET Campus, Dhaka, Bangladesh</p><span class="ev-tag">In Person</span></div>
+    </div>
+    <div class="ev">
+      <div class="ev-date"><span class="ev-m">Dec</span><span class="ev-d">07</span></div>
+      <div class="ev-info"><h4>Annual Grand Reunion 2026</h4><p>Venue to be announced</p><span class="ev-tag">Save the Date</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section">
+  <p class="q-text">
+    "The friendships forged at BUET in 1983 have outlasted careers, continents, and decades —
+    <span>they are the truest measure of our time there."</span>
+  </p>
+  <div class="q-author">— Class of 1983 · Bangladesh University of Engineering & Technology</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="ft-brand">
+      <img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/>
+      <h3>BUET83 Alumni Network</h3>
+      <p>Forever connected — across time and across the world. A community of engineers united since 1983.</p>
+      <div class="ft-social">
+        <a href="#">📘</a>
+        <a href="#">💬</a>
+        <a href="#">📧</a>
+        <a href="#">🌐</a>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Pages</h4>
+      <a href="forum.html">Home</a>
+      <a href="news.html">News & Updates</a>
+      <a href="forum.html">Forum</a>
+      <a href="#">Events</a>
+      <a href="#">Members</a>
+      <a href="#">Gallery</a>
+    </div>
+    <div class="ft-col">
+      <h4>Chapters</h4>
+      <a href="#">Dhaka</a>
+      <a href="#">Toronto</a>
+      <a href="#">London</a>
+      <a href="#">Houston</a>
+      <a href="#">Sydney</a>
+      <a href="#">Dubai</a>
+    </div>
+    <div class="ft-col">
+      <h4>Connect</h4>
+      <a href="#">Contact Us</a>
+      <a href="#">Facebook Group</a>
+      <a href="#">WhatsApp</a>
+      <a href="#">Scholarship Fund</a>
+      <a href="#">Submit News</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 BUET83 Alumni Network · All rights reserved</p>
+    <p>Built with ❤️ for the Class of 1983</p>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if(window.scrollY > 50) {
+      nav.style.background = 'rgba(13,13,13,.97)';
+      nav.style.boxShadow = '0 4px 32px rgba(0,0,0,.4)';
+    } else {
+      nav.style.background = 'rgba(13,13,13,.85)';
+      nav.style.boxShadow = 'none';
+    }
+  });
+
+  // Animate elements on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, {threshold: 0.1});
+
+  document.querySelectorAll('.fc,.nc,.tp,.ev').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity .6s ease, transform .6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

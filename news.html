@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BUET83 Alumni – News & Updates</title>
+  <link rel="stylesheet" href="buet83.css"/>
+  <style>
+    .news-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;margin-top:48px}
+    .news-main{}
+    .news-sidebar{}
+    .nc{background:var(--dark3);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s,border-color .3s;margin-bottom:20px}
+    .nc:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,.4);border-color:rgba(192,57,43,.3)}
+    .nc-img{height:240px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+    .nc-img.red{background:linear-gradient(135deg,rgba(192,57,43,.3),rgba(139,0,0,.15))}
+    .nc-img.gold{background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(201,168,76,.08))}
+    .nc-img.blue{background:linear-gradient(135deg,rgba(74,111,165,.25),rgba(74,111,165,.08))}
+    .nc-img.green{background:linear-gradient(135deg,rgba(74,124,111,.25),rgba(74,124,111,.08))}
+    .nc-img.purple{background:linear-gradient(135deg,rgba(150,80,180,.25),rgba(150,80,180,.08))}
+    .nc-body{padding:24px}
+    .nc-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--white);line-height:1.3;margin:10px 0 8px}
+    .nc-excerpt{font-size:.87rem;color:var(--muted);line-height:1.72;margin-bottom:14px}
+    .nc-meta{font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:12px}
+    .nc-meta span{display:flex;align-items:center;gap:4px}
+    /* Small cards */
+    .nc-sm{display:flex;gap:14px;background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .3s;margin-bottom:14px}
+    .nc-sm:hover{border-color:rgba(192,57,43,.3);transform:translateX(4px)}
+    .nc-sm-img{width:64px;height:64px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+    .nc-sm-body{}
+    .nc-sm-title{font-size:.88rem;font-weight:600;color:var(--white);line-height:1.3;margin:4px 0 4px}
+    .nc-sm-meta{font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.3)}
+    /* Filter bar */
+    .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px}
+    .filter-btn{padding:7px 18px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .filter-btn:hover,.filter-btn.active{background:rgba(192,57,43,.15);border-color:rgba(192,57,43,.4);color:var(--red3)}
+    /* Sidebar */
+    .sb-card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+    .sb-title{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .ev-item{display:flex;gap:12px;margin-bottom:14px;cursor:pointer}
+    .ev-dt{flex-shrink:0;width:44px;text-align:center;background:linear-gradient(135deg,var(--red),var(--red2));border-radius:8px;padding:6px 4px}
+    .ev-dt .m{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);display:block}
+    .ev-dt .d{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--gold2);display:block;line-height:1}
+    .ev-info h4{font-size:.85rem;font-weight:600;color:var(--white);line-height:1.3;margin-bottom:2px}
+    .ev-info p{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted)}
+    .submit-box{background:linear-gradient(135deg,rgba(192,57,43,.15),rgba(192,57,43,.05));border:1px solid rgba(192,57,43,.25);border-radius:12px;padding:24px;text-align:center}
+    .submit-box h4{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:8px}
+    .submit-box p{font-size:.83rem;color:var(--muted);margin-bottom:16px;line-height:1.6}
+    @media(max-width:900px){.news-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="index.html" class="nav-logo"><img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/>
+    <div class="nav-brand"><div class="nb-name">BUET83</div><div class="nb-sub">Alumni Network</div></div></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a><a href="news.html" class="active">News</a>
+    <a href="forum.html">Forum</a><a href="events.html">Events</a>
+    <a href="members.html">Members</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a>
+  </div>
+  <button class="nav-cta">Join the Network</button>
+</nav>
+
+<div class="page-wrap">
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div>
+        <div class="ph-tag">Stay Informed</div>
+        <h1 class="ph-title">News & <em>Updates</em></h1>
+        <p class="ph-sub">Achievements, reunions, announcements and memories from across the BUET83 batch — worldwide.</p>
+      </div>
+      <div class="ph-stats">
+        <div class="phs"><span class="phs-n">48</span><span class="phs-l">Stories</span></div>
+        <div class="phs"><span class="phs-n">12</span><span class="phs-l">This Month</span></div>
+        <div class="phs"><span class="phs-n">347</span><span class="phs-l">Members</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterNews('all',this)">All</button>
+      <button class="filter-btn" onclick="filterNews('reunion',this)">🎉 Reunions</button>
+      <button class="filter-btn" onclick="filterNews('achieve',this)">🏆 Achievements</button>
+      <button class="filter-btn" onclick="filterNews('announce',this)">📣 Announcements</button>
+      <button class="filter-btn" onclick="filterNews('memory',this)">📸 Memories</button>
+      <button class="filter-btn" onclick="filterNews('fund',this)">🎓 Scholarship</button>
+    </div>
+
+    <div class="news-grid">
+      <!-- MAIN FEED -->
+      <div class="news-main" id="news-feed">
+        <!-- Featured -->
+        <div class="nc reveal" data-cat="reunion">
+          <div class="nc-img red">🎉</div>
+          <div class="nc-body">
+            <span class="tag tag-reunion">Reunion</span>
+            <div class="nc-title">Golden Jubilee Reunion 2026 — 40+ Years of Friendship Celebrated in Style</div>
+            <div class="nc-excerpt">Over 120 alumni gathered — many joining virtually from Toronto, London, Houston and Sydney. The evening was filled with speeches, laughter, old photographs, and a tribute to our departed batchmates. A night that reminded us why BUET bonds are for life.</div>
+            <div class="nc-meta"><span>📅 May 10, 2026</span><span>✍️ Hasan Imam</span><span>👁️ 234 views</span></div>
+          </div>
+        </div>
+        <div class="nc reveal" data-cat="achieve">
+          <div class="nc-img gold">🏆</div>
+          <div class="nc-body">
+            <span class="tag tag-achieve">Achievement</span>
+            <div class="nc-title">Dr. Rafiqul Islam Elected Fellow of the Royal Academy of Engineering</div>
+            <div class="nc-excerpt">We proudly congratulate our batchmate Dr. Rafiqul Islam (Civil '83) on being elected a Fellow of the Royal Academy of Engineering — one of the highest honours in the engineering profession worldwide.</div>
+            <div class="nc-meta"><span>📅 April 15, 2026</span><span>✍️ Rezaul Karim</span><span>👁️ 189 views</span></div>
+          </div>
+        </div>
+        <div class="nc reveal" data-cat="announce">
+          <div class="nc-img blue">📣</div>
+          <div class="nc-body">
+            <span class="tag tag-announce">Announcement</span>
+            <div class="nc-title">Toronto Chapter Alumni Dinner — May 20 at Sheraton Centre</div>
+            <div class="nc-excerpt">The North America chapter invites all BUET83 alumni in the Greater Toronto Area. Spouses and family welcome. RSVP by May 15 to secure your seat at this much-anticipated evening.</div>
+            <div class="nc-meta"><span>📅 April 28, 2026</span><span>👁️ 156 views</span></div>
+          </div>
+        </div>
+        <div class="nc reveal" data-cat="memory">
+          <div class="nc-img purple">🕯️</div>
+          <div class="nc-body">
+            <span class="tag tag-memory">In Memoriam</span>
+            <div class="nc-title">In Memoriam: Professor Abdul Karim — Our Beloved Teacher</div>
+            <div class="nc-excerpt">We mourn the passing of Professor Abdul Karim, whose dedication to teaching inspired generations of engineers at BUET. The batch will hold a memorial session at the upcoming reunion in his honour.</div>
+            <div class="nc-meta"><span>📅 March 30, 2026</span><span>👁️ 203 views</span></div>
+          </div>
+        </div>
+        <div class="nc reveal" data-cat="fund">
+          <div class="nc-img green">🎓</div>
+          <div class="nc-body">
+            <span class="tag tag-gold">Scholarship Fund</span>
+            <div class="nc-title">BUET83 Scholarship Fund Reaches ৳15 Lakh Milestone</div>
+            <div class="nc-excerpt">Thanks to the generous contributions of 47 batchmates, the BUET83 Scholarship Fund has crossed the ৳15 lakh mark, supporting meritorious but financially challenged students at BUET.</div>
+            <div class="nc-meta"><span>📅 March 12, 2026</span><span>✍️ Admin</span><span>👁️ 178 views</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="news-sidebar">
+        <!-- Upcoming Events -->
+        <div class="sb-card reveal">
+          <div class="sb-title">📅 Upcoming Events</div>
+          <div class="ev-item"><div class="ev-dt"><span class="m">May</span><span class="d">20</span></div><div class="ev-info"><h4>Toronto Alumni Dinner</h4><p>Sheraton Centre, Toronto</p></div></div>
+          <div class="ev-item"><div class="ev-dt"><span class="m">Jun</span><span class="d">14</span></div><div class="ev-info"><h4>Dhaka Chapter Meetup</h4><p>BUET Campus, Dhaka</p></div></div>
+          <div class="ev-item"><div class="ev-dt"><span class="m">Dec</span><span class="d">07</span></div><div class="ev-info"><h4>Grand Reunion 2026</h4><p>Venue TBA</p></div></div>
+          <button class="btn-outline-red" style="width:100%;margin-top:8px" onclick="location.href='events.html'">View All Events →</button>
+        </div>
+        <!-- Submit News -->
+        <div class="submit-box reveal">
+          <h4>Have News to Share?</h4>
+          <p>Achievements, events, memories — share it with the batch. We'll feature it here!</p>
+          <button class="btn-red" onclick="location.href='contact.html'">Submit a Story →</button>
+        </div>
+        <!-- Recent -->
+        <div class="sb-card reveal">
+          <div class="sb-title">🕐 Recent Stories</div>
+          <div class="nc-sm"><div class="nc-sm-img red">🎉</div><div class="nc-sm-body"><div class="nc-sm-title">Reunion 2026 Highlights</div><div class="nc-sm-meta">May 10, 2026</div></div></div>
+          <div class="nc-sm"><div class="nc-sm-img gold">🏆</div><div class="nc-sm-body"><div class="nc-sm-title">Dr. Rafiq — FREng</div><div class="nc-sm-meta">April 15, 2026</div></div></div>
+          <div class="nc-sm"><div class="nc-sm-img blue">📣</div><div class="nc-sm-body"><div class="nc-sm-title">Toronto Dinner Announced</div><div class="nc-sm-meta">April 28, 2026</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="ft-brand"><img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/><h3>BUET83 Alumni Network</h3><p>Forever connected — across time and across the world.</p><div class="ft-social"><a href="#">📘</a><a href="#">💬</a><a href="#">📧</a><a href="#">🌐</a></div></div>
+    <div class="ft-col"><h4>Pages</h4><a href="index.html">Home</a><a href="news.html">News</a><a href="forum.html">Forum</a><a href="events.html">Events</a><a href="members.html">Members</a><a href="gallery.html">Gallery</a></div>
+    <div class="ft-col"><h4>Chapters</h4><a href="#">Dhaka</a><a href="#">Toronto</a><a href="#">London</a><a href="#">Houston</a><a href="#">Sydney</a><a href="#">Dubai</a></div>
+    <div class="ft-col"><h4>Connect</h4><a href="contact.html">Contact Us</a><a href="#">Facebook</a><a href="#">WhatsApp</a><a href="#">Scholarship</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2026 BUET83 Alumni Network</p><p>Built with ❤️ for Class of 1983</p></div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');n.style.background=window.scrollY>50?'rgba(13,13,13,.98)':'rgba(13,13,13,.88)';n.style.boxShadow=window.scrollY>50?'0 4px 32px rgba(0,0,0,.4)':'none'});
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function filterNews(cat,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#news-feed .nc').forEach(nc=>{
+    nc.style.display=(cat==='all'||nc.dataset.cat===cat)?'block':'none';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BUET83 Alumni – Contact</title>
+  <link rel="stylesheet" href="buet83.css"/>
+  <style>
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:48px}
+    .contact-form-box{background:var(--dark3);border:1px solid var(--border);border-radius:20px;padding:40px}
+    .contact-form-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white);margin-bottom:6px}
+    .contact-form-sub{font-size:.87rem;color:var(--muted);margin-bottom:28px;line-height:1.6}
+    .form-success{display:none;text-align:center;padding:32px;background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.2);border-radius:12px}
+    .form-success h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:#7ecab8;margin-bottom:8px}
+    .form-success p{font-size:.87rem;color:var(--muted)}
+    .contact-info{}
+    .ci-card{background:var(--dark3);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;transition:all .3s}
+    .ci-card:hover{border-color:rgba(192,57,43,.3);transform:translateY(-2px)}
+    .ci-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(192,57,43,.06));border:1px solid rgba(192,57,43,.2)}
+    .ci-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--white);margin-bottom:6px}
+    .ci-text{font-size:.85rem;color:var(--muted);line-height:1.7}
+    .ci-link{color:var(--gold2);text-decoration:none;font-size:.85rem;transition:color .2s}
+    .ci-link:hover{color:var(--red3)}
+    .chapter-contacts{margin-top:48px}
+    .cc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:24px}
+    .cc-card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s;cursor:pointer}
+    .cc-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-3px)}
+    .cc-flag{font-size:1.8rem;margin-bottom:10px}
+    .cc-city{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--white);margin-bottom:4px}
+    .cc-rep{font-size:.83rem;color:var(--muted);margin-bottom:8px}
+    .cc-rep strong{color:var(--cream)}
+    .cc-contact{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--gold2)}
+    .faq-section{margin-top:64px}
+    .faq-item{border-bottom:1px solid var(--border);padding:20px 0;cursor:pointer}
+    .faq-item:last-child{border-bottom:none}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;font-weight:600;color:var(--white);font-size:.95rem}
+    .faq-q .arrow{color:var(--gold2);transition:transform .3s;font-size:.8rem}
+    .faq-a{font-size:.87rem;color:var(--muted);line-height:1.7;margin-top:12px;display:none}
+    .faq-item.open .faq-a{display:block}
+    .faq-item.open .arrow{transform:rotate(180deg)}
+    @media(max-width:900px){.contact-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="index.html" class="nav-logo"><img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/>
+    <div class="nav-brand"><div class="nb-name">BUET83</div><div class="nb-sub">Alumni Network</div></div></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a><a href="news.html">News</a>
+    <a href="forum.html">Forum</a><a href="events.html">Events</a>
+    <a href="members.html">Members</a><a href="gallery.html">Gallery</a><a href="contact.html" class="active">Contact</a>
+  </div>
+  <button class="nav-cta">Join the Network</button>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div>
+        <div class="ph-tag">Get in Touch</div>
+        <h1 class="ph-title">Contact <em>Us</em></h1>
+        <p class="ph-sub">Have news to share, an event to announce, or just want to reconnect? We'd love to hear from you.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="contact-grid">
+      <!-- FORM -->
+      <div class="contact-form-box reveal">
+        <div class="contact-form-title">Send us a Message</div>
+        <div class="contact-form-sub">Whether you want to share a news story, report an issue, or get in touch with the committee — use this form.</div>
+
+        <div id="contact-form">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Your Name *</label><input class="form-input" id="cf-name" placeholder="e.g. Rezaul Karim"/></div>
+            <div class="form-group"><label class="form-label">Dept & Year</label><input class="form-input" id="cf-dept" placeholder="e.g. Civil '83"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email Address *</label><input class="form-input" id="cf-email" placeholder="your@email.com" type="email"/></div>
+          <div class="form-group"><label class="form-label">Subject *</label>
+            <select class="form-select" id="cf-subject">
+              <option value="">Select a topic...</option>
+              <option>Submit a News Story</option>
+              <option>Event Announcement</option>
+              <option>Share Photos</option>
+              <option>Update My Profile</option>
+              <option>Chapter Enquiry</option>
+              <option>Scholarship Fund</option>
+              <option>General Enquiry</option>
+              <option>Website Feedback</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Message *</label><textarea class="form-textarea" id="cf-message" placeholder="Write your message here..." style="min-height:140px"></textarea></div>
+          <button class="btn-red" style="width:100%" onclick="submitForm()">Send Message →</button>
+        </div>
+
+        <div class="form-success" id="form-success">
+          <div style="font-size:3rem;margin-bottom:12px">✅</div>
+          <h3>Message Sent!</h3>
+          <p>Thank you for reaching out. The committee will get back to you within 2-3 days.</p>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="contact-info">
+        <div class="ci-card reveal">
+          <div class="ci-icon">📧</div>
+          <div class="ci-title">Email the Committee</div>
+          <div class="ci-text">For general enquiries, news submissions, or event announcements.</div>
+          <a href="mailto:committee@buet83alumni.org" class="ci-link">committee@buet83alumni.org</a>
+        </div>
+        <div class="ci-card reveal">
+          <div class="ci-icon">🌐</div>
+          <div class="ci-title">Main Website</div>
+          <div class="ci-text">Visit the main BUET83 alumni website for news, events and updates.</div>
+          <a href="https://buet83.wordpress.com" class="ci-link" target="_blank">buet83.wordpress.com</a>
+        </div>
+        <div class="ci-card reveal">
+          <div class="ci-icon">📘</div>
+          <div class="ci-title">Facebook Group</div>
+          <div class="ci-text">Join the private BUET83 alumni Facebook group to connect with batchmates.</div>
+          <a href="#" class="ci-link">facebook.com/groups/buet83alumni</a>
+        </div>
+        <div class="ci-card reveal">
+          <div class="ci-icon">💬</div>
+          <div class="ci-title">WhatsApp Groups</div>
+          <div class="ci-text">Ask your chapter representative to add you to the local WhatsApp group.</div>
+          <a href="#" class="ci-link">Contact your chapter rep →</a>
+        </div>
+        <div class="ci-card reveal">
+          <div class="ci-icon">🎓</div>
+          <div class="ci-title">Scholarship Fund</div>
+          <div class="ci-text">To contribute to the BUET83 Scholarship Fund or get donation details.</div>
+          <a href="#" class="ci-link">scholarship@buet83alumni.org</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAPTER CONTACTS -->
+    <div class="chapter-contacts">
+      <div class="sec-tag">Find Your Local Rep</div>
+      <h2 class="sec-title">Chapter <em>Contacts</em></h2>
+      <div class="cc-grid">
+        <div class="cc-card reveal"><div class="cc-flag">🇧🇩</div><div class="cc-city">Dhaka, Bangladesh</div><div class="cc-rep">Rep: <strong>Jamal Uddin</strong></div><div class="cc-contact">dhaka@buet83alumni.org</div></div>
+        <div class="cc-card reveal"><div class="cc-flag">🇨🇦</div><div class="cc-city">Toronto, Canada</div><div class="cc-rep">Rep: <strong>Shahed Alam</strong></div><div class="cc-contact">toronto@buet83alumni.org</div></div>
+        <div class="cc-card reveal"><div class="cc-flag">🇺🇸</div><div class="cc-city">Houston, USA</div><div class="cc-rep">Rep: <strong>Kamal Ahmed</strong></div><div class="cc-contact">houston@buet83alumni.org</div></div>
+        <div class="cc-card reveal"><div class="cc-flag">🇬🇧</div><div class="cc-city">London, UK</div><div class="cc-rep">Rep: <strong>Rafiqul Islam</strong></div><div class="cc-contact">london@buet83alumni.org</div></div>
+        <div class="cc-card reveal"><div class="cc-flag">🇦🇺</div><div class="cc-city">Sydney, Australia</div><div class="cc-rep">Rep: <strong>Hasan Imam</strong></div><div class="cc-contact">sydney@buet83alumni.org</div></div>
+        <div class="cc-card reveal"><div class="cc-flag">🇦🇪</div><div class="cc-city">Dubai, UAE</div><div class="cc-rep">Rep: <strong>Tariq Hassan</strong></div><div class="cc-contact">dubai@buet83alumni.org</div></div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <div class="sec-tag">Common Questions</div>
+      <h2 class="sec-title">FAQ</h2>
+      <div style="margin-top:24px;background:var(--dark3);border:1px solid var(--border);border-radius:16px;padding:8px 32px">
+        <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How do I add myself to the Members Directory? <span class="arrow">▼</span></div><div class="faq-a">Send your details (name, department, current city, country, and role) to committee@buet83alumni.org and we'll add you within 48 hours.</div></div>
+        <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How do I submit a news story or achievement? <span class="arrow">▼</span></div><div class="faq-a">Use the contact form above or email us directly. Include a brief write-up and any photos. We'll feature it on the News page within a few days.</div></div>
+        <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How do I RSVP for an event? <span class="arrow">▼</span></div><div class="faq-a">Visit the Events page and click the RSVP button for the relevant event. You can also contact your chapter representative directly.</div></div>
+        <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How do I contribute to the Scholarship Fund? <span class="arrow">▼</span></div><div class="faq-a">Email scholarship@buet83alumni.org for bank details. All contributions are acknowledged and published in the newsletter with your permission.</div></div>
+        <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How do I share old photos from our BUET days? <span class="arrow">▼</span></div><div class="faq-a">Email your photos to committee@buet83alumni.org or use the contact form. Please include the year and any context so we can caption them correctly.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="ft-brand"><img src="logo.png" onerror="this.style.display='none'" alt="BUET83"/><h3>BUET83 Alumni Network</h3><p>Forever connected — across time and across the world.</p><div class="ft-social"><a href="#">📘</a><a href="#">💬</a><a href="#">📧</a><a href="#">🌐</a></div></div>
+    <div class="ft-col"><h4>Pages</h4><a href="index.html">Home</a><a href="news.html">News</a><a href="forum.html">Forum</a><a href="events.html">Events</a><a href="members.html">Members</a><a href="gallery.html">Gallery</a></div>
+    <div class="ft-col"><h4>Chapters</h4><a href="#">Dhaka</a><a href="#">Toronto</a><a href="#">London</a><a href="#">Houston</a><a href="#">Sydney</a><a href="#">Dubai</a></div>
+    <div class="ft-col"><h4>Connect</h4><a href="contact.html">Contact Us</a><a href="#">Facebook</a><a href="#">WhatsApp</a><a href="#">Scholarship</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2026 BUET83 Alumni Network</p><p>Built with ❤️ for Class of 1983</p></div>
+</footer>
+
+<script>
+function submitForm(){
+  const name=document.getElementById('cf-name').value.trim();
+  const email=document.getElementById('cf-email').value.trim();
+  const subject=document.getElementById('cf-subject').value;
+  const message=document.getElementById('cf-message').value.trim();
+  if(!name||!email||!subject||!message){alert('Please fill in all required fields.');return}
+  document.getElementById('contact-form').style.display='none';
+  document.getElementById('form-success').style.display='block';
+}
+function toggleFaq(item){item.classList.toggle('open')}
+window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');n.style.background=window.scrollY>50?'rgba(13,13,13,.98)':'rgba(13,13,13,.88)';n.style.boxShadow=window.scrollY>50?'0 4px 32px rgba(0,0,0,.4)':'none'});
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
