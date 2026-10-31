@@ -1,0 +1,35 @@
+name: Update album list
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - '!souvenir.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-album
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild the profile list
+        run: python3 build_profiles.py
+      - name: Save the change if the list changed
+        run: |
+          if [ -n "$(git status --porcelain souvenir.html)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add souvenir.html
+            git commit -m "Update album list"
+            git push
+          else
+            echo "No change to the album list."
+          fi
