@@ -1,0 +1,42 @@
+name: Append embedded photo to BUET83 Gallery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gallery_photo_updates/*.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: buet83-gallery-photo-update
+  cancel-in-progress: false
+
+jobs:
+  append-photo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Append the submitted photo to gallery.html
+        run: python3 scripts/append_gallery_photo.py
+
+      - name: Commit the updated Gallery and remove its one-time payload
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add gallery.html
+            git add -u gallery_photo_updates
+            git commit -m "Add new photograph to BUET83 Digital Heritage Gallery"
+            git push
+          else
+            echo "No changes to commit."
+          fi
