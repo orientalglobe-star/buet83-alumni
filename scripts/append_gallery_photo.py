@@ -24,7 +24,11 @@ def main():
         caption = payload["caption"]
         category = payload.get("category", "friends")
         batch_label = payload.get("batch_label", "New submission")
-        image_b64 = payload["image_base64"]
+        parts = payload.get("image_base64_parts")
+        if parts:
+            image_b64 = "".join((ROOT / part).read_text(encoding="ascii").strip() for part in parts)
+        else:
+            image_b64 = payload["image_base64"]
 
         if category not in {"early", "friends", "reunions"}:
             raise ValueError(f"Unsupported category: {category}")
@@ -45,6 +49,8 @@ def main():
         if photo_id in html:
             print(f"{photo_id} already exists; skipping duplicate.")
             payload_path.unlink()
+            for part in payload.get("image_base64_parts", []):
+                (ROOT / part).unlink(missing_ok=True)
             continue
         if supplied != expected:
             raise ValueError(
@@ -83,6 +89,8 @@ def main():
             raise ValueError("Could not safely update all Gallery photo counts.")
 
         payload_path.unlink()
+        for part in payload.get("image_base64_parts", []):
+            (ROOT / part).unlink(missing_ok=True)
         changed = True
         print(f"Appended {photo_id}.")
 
