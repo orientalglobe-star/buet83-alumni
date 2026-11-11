@@ -37,10 +37,14 @@ def main():
         if not match:
             raise ValueError(f"Invalid permanent ID: {photo_id}")
 
-        # Verify JPEG bytes before inserting them in the HTML data URI.
+        # Verify JPEG or WebP bytes before inserting the data URI.
         image_bytes = base64.b64decode(image_b64, validate=True)
-        if not image_bytes.startswith(bytes.fromhex("FFD8FF")):
-            raise ValueError(f"{photo_id} is not a JPEG image.")
+        if image_bytes.startswith(bytes.fromhex("FFD8FF")):
+            image_mime = "image/jpeg"
+        elif image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP":
+            image_mime = "image/webp"
+        else:
+            raise ValueError(f"{photo_id} is not a supported JPEG or WebP image.")
 
         ids = [int(n) for n in re.findall(r'data-id="BUET83-(\d{3})"', html)]
         expected = max(ids, default=0) + 1
@@ -57,7 +61,7 @@ def main():
                 f"Expected next permanent ID BUET83-{expected:03d}, got {photo_id}."
             )
 
-        data_uri = "data:image/jpeg;base64," + image_b64
+        data_uri = f"data:{image_mime};base64," + image_b64
         safe_caption = (caption.replace("&", "&amp;").replace("<", "&lt;")
                                .replace(">", "&gt;").replace('"', "&quot;"))
         card = f"""
