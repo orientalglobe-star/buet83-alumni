@@ -165,3 +165,6 @@ footer{background:var(--dark);border-top:1px solid var(--line);padding:60px 60px
   .footer-grid{grid-template-columns:1fr}
   .ph-stats{display:none}
 }
+
+/* Digital Heritage gallery cards: visible without the scroll-reveal script. */
+.gallery-grid .gi.reveal{opacity:1;transform:none}
